@@ -27,6 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Counter implements CommandCounter {
 
@@ -34,6 +35,7 @@ public class Counter implements CommandCounter {
     private transient Command command;
     private final String label;
     private final List<String> args = new ArrayList<>();
+    protected String lastFQN;
     private int hashCode;
     public int count;
     private int limit;
@@ -44,6 +46,7 @@ public class Counter implements CommandCounter {
         this.hashCode = command.hashCode();
         this.count = 0;
         this.limit = -1;
+        this.lastFQN = getFQN();
     }
 
     @Override
@@ -55,7 +58,13 @@ public class Counter implements CommandCounter {
             command = CommandCountdown.getAPI().getCommandByName(label);
             if (command != null) {
                 hashCode = command.hashCode();
+                JavaPlugin.getProvidingPlugin(Counter.class).getLogger()
+                        .warning("Counter for " + label + " remapped. New FQN: " + getFQN());
             }
+        } if (command != null) {
+            lastFQN = getFQN();
+        } else {
+            return new NullCommand(this);
         }
         return command;
     }
@@ -119,9 +128,15 @@ public class Counter implements CommandCounter {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(hashCode, args);
+    }
+
+    @Override
     public String toString() {
         return ChatColor.translateAlternateColorCodes('&',
                 String.format("&7Command: '&e%s&7' &8args:&7%s &elimit:[%s] &bcount:[%s]",
-                        getFQN(), (args.isEmpty()) ? "NONE" : args, limit, count));
+                        (command instanceof NullCommand) ? "missing!" + ((NullCommand) command).getLastFQN() : getFQN(),
+                        (args.isEmpty()) ? "NONE" : args, limit, count));
     }
 }

@@ -21,6 +21,13 @@
 # Should arguments be treated with case sensitivity? This should stay false in most cases
 args-case-sensitive: false
 
+# Should we manually process commands for players and keep original count on failures?
+## This feature prevents counts from incrementing when a command fails for a player.
+## It uses the boolean result of Command#execute, which might not return false in all
+## types of "failure" (no permissions, etc). If you want EVERY potential command execution
+## to be counted against the player, set this to false.
+keep-count-on-failure: true
+
 default-limits:
   ### Config example!
 #  "auctionhouse:ah":
@@ -32,9 +39,10 @@ default-limits:
   # the wildcard "*" matches ANY further input (including third, forth argument)
 
   ### Simple example
-  sethome:
-    args: []
-    limit: 1
+#  sethome:
+#    args: []
+#    limit: 1
   ### This would limit players to run /sethome *once*
   # Things to note:
-  # * Limit takes effect whether
+  # * Empty args list = only blocking the no-args base command.
+  #   If any arguments are provided the command will not be blocked.

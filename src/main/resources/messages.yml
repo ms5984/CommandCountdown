@@ -31,5 +31,7 @@ Messages:
   Invalid-Num: "&c'%s' is not a valid number."
   Specify-Command: '&aPlease specify a command'
   Invalid-Command: "&c'%s' is not a valid command."
-  No-Limits: '&cYou have no limited commands.'
-  Limit-Data: '&lLimit data:'
+  No-Limits: '&eYou have no limited commands.'
+  Limit-Data: '&oYour limit data:'
+  Player-No-Limits: '&e%s does not have any limited commands.'
+  Player-Limit-Data: "&oLimit data for &e'%s'&r"

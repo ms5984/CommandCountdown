@@ -23,7 +23,7 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 public interface CommandCountdownAPI {
@@ -46,11 +46,11 @@ public interface CommandCountdownAPI {
     CommandCounter getCommandCounter(Command command, Player player);
 
     /**
-     * Retrieve a map of all commands limited for a given player.
+     * Retrieve a List of all commands limited for a given player.
      * @param player a player
-     * @return a map of all limited commands with CommandCounters
+     * @return a List of all CommandCounters
      */
-    Map<Command, CommandCounter> getCountedCommands(Player player);
+    List<CommandCounter> getCountedCommands(Player player);
 
     /**
      * Retrieve a Set of all command labels for the server

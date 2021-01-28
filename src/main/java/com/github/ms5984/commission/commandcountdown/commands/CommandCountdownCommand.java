@@ -61,22 +61,16 @@ public class CommandCountdownCommand extends CommandBase {
                     }
                     // We have a player
                     final Player player = (Player) sender;
-                    final Map<Command, CommandCounter> countedCommands = api.getCountedCommands(player);
-                    if (countedCommands.isEmpty()) {
-                        // You do not have any limited commands
-                        sendMessage(sender, Messages.NO_LIMITS);
-                        return true;
-                    }
-                    final List<String> counters = new ArrayList<>();
-                    countedCommands.values().stream().map(Object::toString).forEach(counters::add);
-                    if (counters.isEmpty()) {
+                    final String[] messages = api.getCountedCommands(player)
+                            .parallelStream().map(Object::toString).toArray(String[]::new);
+                    if (messages.length == 0) {
                         // You do not have any limited commands
                         sendMessage(sender, Messages.NO_LIMITS);
                         return true;
                     }
                     // Your limited commands are as follows
                     sendMessage(sender, Messages.LIMIT_DATA);
-                    sender.sendMessage(counters.toArray(new String[0]));
+                    sender.sendMessage(messages);
                     return true;
                 } else if (args.length == 2) {
                     final Optional<Player> optionalPlayer = optionalOnlinePlayer(args[1]);
@@ -87,12 +81,16 @@ public class CommandCountdownCommand extends CommandBase {
                     }
                     // We have a player
                     final Player target = optionalPlayer.get();
-                    final Map<Command, CommandCounter> countedCommands = api.getCountedCommands(target);
-                    if (countedCommands.isEmpty()) {
+                    final String[] messages = api.getCountedCommands(target)
+                            .parallelStream().map(Object::toString).toArray(String[]::new);
+                    if (messages.length == 0) {
                         // Target does not have any limited commands
+                        sendMessage(sender, String.format(Messages.PLAYER_NO_LIMITS.toString(), target.getName()));
+                        return true;
                     }
                     // Target's limited commands
-                    countedCommands.forEach((command, commandCounter) -> sendMessage(sender, commandCounter.toString()));
+                    sendMessage(sender, String.format(Messages.PLAYER_LIMIT_DATA.toString(), target.getName()));
+                    sender.sendMessage(messages);
                     return true;
                 }
             } else if ("reload".equalsIgnoreCase(args[0])) {// check permission and run reload
@@ -198,7 +196,7 @@ public class CommandCountdownCommand extends CommandBase {
                 if (args.length > 4) {
                     commandCounter.setArgs(Arrays.copyOfRange(args, 4, args.length));
                 }
-                PlayerData.getForPlayer(player).putCommandCounter(commandCounter);
+                PlayerData.getForPlayer(player).storeCommandCounter(commandCounter);
                 System.out.println(commandCounter);
                 return true;
             }
@@ -264,7 +262,14 @@ public class CommandCountdownCommand extends CommandBase {
                 if (playerOptional.isPresent()) {
                     final Player player = playerOptional.get();
                     StringUtil.copyPartialMatches(args[2], PlayerData.getForPlayer(player)
-                            .getPlayerLimits().keySet().stream().map(Command::getLabel)
+                            .getPlayerLimits().parallelStream()
+                            .map(cc -> {
+                                final StringBuilder sb = new StringBuilder(cc.getLabel());
+                                for (String arg : cc.getArgs()) {
+                                    sb.append(" ").append(arg);
+                                }
+                                return sb.toString();
+                            })
                             .collect(Collectors.toCollection(ArrayList::new)), completions);
                 }
             }

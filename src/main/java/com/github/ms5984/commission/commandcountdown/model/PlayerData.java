@@ -21,7 +21,6 @@ package com.github.ms5984.commission.commandcountdown.model;
 import com.github.ms5984.commission.commandcountdown.CommandCountdown;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -37,7 +36,7 @@ public class PlayerData {
     private static final Supplier<NamespacedKey> DATA_KEY = CommandCountdown::getDataKey;
     private static final Map<Player, PlayerData> instances = new HashMap<>();
     private final Player player;
-    private final Map<Command, CommandCounter> playerLimits = new HashMap<>();
+    private final List<CommandCounter> playerLimits = new ArrayList<>();
 
     private PlayerData(Player player) {
         this.player = player;
@@ -52,7 +51,7 @@ public class PlayerData {
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
             final BukkitObjectOutputStream outputStream = new BukkitObjectOutputStream(output);
-            outputStream.writeObject(new ArrayList<>(playerLimits.values()));
+            outputStream.writeObject(playerLimits);
             outputStream.flush();
             player.getPersistentDataContainer().set(DATA_KEY.get(), PersistentDataType.BYTE_ARRAY, output.toByteArray());
             System.out.println("Saved data to player");
@@ -68,9 +67,7 @@ public class PlayerData {
                 final BukkitObjectInputStream inputStream = new BukkitObjectInputStream(new ByteArrayInputStream(pdcContents));
                 playerLimits.clear();
                 //noinspection unchecked
-                for (CommandCounter commandCounter : (List<CommandCounter>) inputStream.readObject()) {
-                    playerLimits.putIfAbsent(commandCounter.getBaseCommand(), commandCounter);
-                }
+                playerLimits.addAll((List<CommandCounter>) inputStream.readObject());
                 System.out.println("Successfully loaded data from player");
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -82,11 +79,11 @@ public class PlayerData {
         player.getPersistentDataContainer().remove(DATA_KEY.get());
     }
 
-    public void putCommandCounter(CommandCounter commandCounter) {
-        playerLimits.put(commandCounter.getBaseCommand(), commandCounter);
+    public void storeCommandCounter(CommandCounter commandCounter) {
+        playerLimits.add(commandCounter);
     }
 
-    public Map<Command, CommandCounter> getPlayerLimits() {
+    public List<CommandCounter> getPlayerLimits() {
         return playerLimits;
     }
 

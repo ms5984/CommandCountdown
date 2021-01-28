@@ -35,9 +35,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class CommandCountdown extends JavaPlugin implements CommandCountdownAPI {
 
@@ -81,23 +79,22 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
     @Override
     public boolean hasCommandCounter(Player player, Command command) {
         if (command == null) return false;
-        return PlayerData.getForPlayer(player).getPlayerLimits().keySet().stream()
-                .map(Command::hashCode)
+        return PlayerData.getForPlayer(player).getPlayerLimits().parallelStream()
+                .map(Object::hashCode)
                 .anyMatch(hc -> hc == command.hashCode());
     }
 
     @Override
     public CommandCounter getCommandCounter(Command command, Player player) {
-        return PlayerData.getForPlayer(player).getPlayerLimits().entrySet().stream()
-                .filter(entry -> entry.getKey().hashCode() == command.hashCode())
+        return PlayerData.getForPlayer(player).getPlayerLimits().parallelStream()
+                .filter(cc -> cc.hashCode() == command.hashCode())
                 .findAny()
-                .map(Map.Entry::getValue)
-                .orElseGet(() -> PlayerData.getForPlayer(player).getPlayerLimits().computeIfAbsent(command, Counter::new));
+                .orElseGet(() -> new Counter(command));
     }
 
     @Override
-    public Map<Command, CommandCounter> getCountedCommands(Player player) {
-        return Collections.unmodifiableMap(PlayerData.getForPlayer(player).getPlayerLimits());
+    public List<CommandCounter> getCountedCommands(Player player) {
+        return Collections.unmodifiableList(PlayerData.getForPlayer(player).getPlayerLimits());
     }
 
     @Override

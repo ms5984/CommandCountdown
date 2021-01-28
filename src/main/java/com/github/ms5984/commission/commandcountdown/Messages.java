@@ -45,7 +45,9 @@ public enum Messages {
     SPECIFY_COMMAND("Messages.Specify-Command"),
     INVALID_COMMAND("Messages.Invalid-Command"),
     NO_LIMITS("Messages.No-Limits"),
-    LIMIT_DATA("Messages.Limit-Data");
+    LIMIT_DATA("Messages.Limit-Data"),
+    PLAYER_NO_LIMITS("Messages.Player-No-Limits"),
+    PLAYER_LIMIT_DATA("Messages.Player-Limit-Data");
 
     private static Configuration configuration;
 
