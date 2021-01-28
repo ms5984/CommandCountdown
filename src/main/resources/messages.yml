@@ -1,0 +1,35 @@
+##
+#  Copyright 2021 ms5984 (Matt) <https://github.com/ms5984>
+#
+#  This file is part of CommandCountdown.
+#
+#  CommandCountdown is free software: you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License as
+#  published by the Free Software Foundation, either version 3 of the
+#  License, or (at your option) any later version.
+#
+#  CommandCountdown is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##
+Messages:
+  No-Permission: '&cYou do not have permission to perform this command!'
+  Not-Player: '&cYou must be a player to run this command!'
+  Reached-Limit: '&cYou have reached the uses limit for this command.'
+  Specify-Player: '&cYou must specify a player.'
+  Player-Not-Found: '&7Player not found.'
+  Cleared-Player: "&7Cleared &f&lALL &7limits for player %s"
+  Reset-Usage: '&cInvalid command. &7Usage: &f/cc reset &b<player_name> &a[command]'
+  No-Reset: "&7This player does not have any limits for this command, no reset needed."
+  Removed-Command: "&e'%s' &7limits removed from player %s."
+  Reload: 'Plugin messages file reloaded.'
+  Need-Int: '&cYou must enter a number.'
+  Invalid-Num: "&c'%s' is not a valid number."
+  Specify-Command: '&aPlease specify a command'
+  Invalid-Command: "&c'%s' is not a valid command."
+  No-Limits: '&cYou have no limited commands.'
+  Limit-Data: 'Limit data:'

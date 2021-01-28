@@ -1,0 +1,9 @@
+name: CommandCountdown
+version: ${project.version}
+main: com.github.ms5984.commission.commandcountdown.CommandCountdown
+api-version: 1.15
+load: STARTUP
+softdepend: [ Vault ]
+authors: [ ms5984 ]
+description: ${project.description}
+website: ${project.url}

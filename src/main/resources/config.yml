@@ -1,0 +1,40 @@
+##
+#  Copyright 2021 ms5984 (Matt) <https://github.com/ms5984>
+#
+#  This file is part of CommandCountdown.
+#
+#  CommandCountdown is free software: you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License as
+#  published by the Free Software Foundation, either version 3 of the
+#  License, or (at your option) any later version.
+#
+#  CommandCountdown is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##
+
+##### Settings #####
+# Should arguments be treated with case sensitivity? This should stay false in most cases
+args-case-sensitive: false
+
+default-limits:
+  ### Config example!
+#  "auctionhouse:ah":
+#    args: ["sell", "*"]
+#    limit: 5
+  ### This is how CommandCountdown stores a default limit entry.
+  # Note: you can specify the prefix of a plugin in case multiple define the same alias.
+  # This is not required but is available as a convenience.
+  # the wildcard "*" matches ANY further input (including third, forth argument)
+
+  ### Simple example
+  sethome:
+    args: []
+    limit: 1
+  ### This would limit players to run /sethome *once*
+  # Things to note:
+  # * Limit takes effect whether
