@@ -26,9 +26,7 @@ import com.github.ms5984.commission.commandcountdown.model.PlayerData;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.StringUtil;
@@ -69,9 +67,16 @@ public class CommandCountdownCommand extends CommandBase {
                         sendMessage(sender, Messages.NO_LIMITS);
                         return true;
                     }
+                    final List<String> counters = new ArrayList<>();
+                    countedCommands.values().stream().map(Object::toString).forEach(counters::add);
+                    if (counters.isEmpty()) {
+                        // You do not have any limited commands
+                        sendMessage(sender, Messages.NO_LIMITS);
+                        return true;
+                    }
                     // Your limited commands are as follows
                     sendMessage(sender, Messages.LIMIT_DATA);
-                    sender.sendMessage((String[]) countedCommands.values().stream().map(Object::toString).toArray());
+                    sender.sendMessage(counters.toArray(new String[0]));
                     return true;
                 } else if (args.length == 2) {
                     final Optional<Player> optionalPlayer = optionalOnlinePlayer(args[1]);

@@ -32,4 +32,4 @@ Messages:
   Specify-Command: '&aPlease specify a command'
   Invalid-Command: "&c'%s' is not a valid command."
   No-Limits: '&cYou have no limited commands.'
-  Limit-Data: 'Limit data:'
+  Limit-Data: '&lLimit data:'

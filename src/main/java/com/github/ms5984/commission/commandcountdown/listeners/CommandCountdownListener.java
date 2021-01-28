@@ -51,7 +51,6 @@ public class CommandCountdownListener implements Listener {
         if (!api.hasCommandCounter(player, command)) {
             return;
         }
-        System.out.println("HAS COUNTER");
         final Counter counter = (Counter) api.getCommandCounter(command, player);
         final String[] eventArgs = e.getArgs();
         final String[] counterArgs = counter.getArgs();
@@ -86,11 +85,11 @@ public class CommandCountdownListener implements Listener {
         plugin.getServer().getPluginManager().callEvent(new PlayerRunLimitedCommandEvent(e, counter));
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerRunLimitedCommand(PlayerRunLimitedCommandEvent e) {
         final Counter counter = (Counter) e.getCommandCounter();
         if (counter.getLimit() > counter.getCurrentCount()) {
-            ++counter.count;
+            // current count is less than limit, event continues uncancelled
             return;
         }
         e.setCancelled(true);
@@ -99,10 +98,10 @@ public class CommandCountdownListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerRunCommandMonitor(PlayerRunLimitedCommandEvent e) {
         if (!e.isCancelled()) {
-            if (!e.getCommand().execute(e.getPlayer(), e.getOriginalCommandText(), e.getArgs())) {
-                --((Counter) e.getCommandCounter()).count;
-                System.out.println("Command failed, restoring original count");
+            if (e.getCommand().execute(e.getPlayer(), e.getOriginalCommandText(), e.getArgs())) {
+                ++((Counter) e.getCommandCounter()).count; // increment count on successful execute
             }
+            // command failed, do not decrement count
         } else {
             final AsyncPlayerCommandBlockedEvent asyncPlayerCommandBlockedEvent = new AsyncPlayerCommandBlockedEvent(e);
             new BukkitRunnable() {
