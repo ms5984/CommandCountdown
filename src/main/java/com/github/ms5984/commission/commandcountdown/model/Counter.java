@@ -36,14 +36,14 @@ public class Counter implements CommandCounter {
     private final String label;
     private final List<String> args = new ArrayList<>();
     protected String lastFQN;
-    private int hashCode;
+    public final String command_toString;
     public int count;
     private int limit;
 
     public Counter(Command command) {
         this.command = command;
         this.label = command.getLabel();
-        this.hashCode = command.hashCode();
+        this.command_toString = command.toString();
         this.count = 0;
         this.limit = -1;
         this.lastFQN = getFQN();
@@ -52,19 +52,7 @@ public class Counter implements CommandCounter {
     @Override
     public Command getBaseCommand() {
         if (command == null) {
-            command = CommandCountdown.getAPI().getCommandById(hashCode);
-        }
-        if (command == null) {
-            command = CommandCountdown.getAPI().getCommandByName(label);
-            if (command != null) {
-                hashCode = command.hashCode();
-                JavaPlugin.getProvidingPlugin(Counter.class).getLogger()
-                        .warning("Counter for " + label + " remapped. New FQN: " + getFQN());
-            }
-        } if (command != null) {
-            lastFQN = getFQN();
-        } else {
-            return new NullCommand(this);
+            command = CommandCountdown.getAPI().getCommandById(command_toString).orElseGet(() -> new NullCommand(this));
         }
         return command;
     }
@@ -86,7 +74,7 @@ public class Counter implements CommandCounter {
                     .filter(s -> {
                         final Command commandByName = CommandCountdown.getAPI().getCommandByName(s);
                         if (commandByName == null) return false;
-                        return commandByName.hashCode() == hashCode;
+                        return commandByName.toString().equals(command_toString);
                     }).findAny().orElse("?:" + label);
         }
     }
@@ -129,7 +117,7 @@ public class Counter implements CommandCounter {
 
     @Override
     public int hashCode() {
-        return Objects.hash(hashCode, args);
+        return Objects.hash(command_toString, args);
     }
 
     @Override

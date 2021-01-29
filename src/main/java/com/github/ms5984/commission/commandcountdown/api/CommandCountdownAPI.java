@@ -23,34 +23,39 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface CommandCountdownAPI {
 
     /**
-     * Check if a player has a CommandCounter for a given command
+     * Check if a player has any CommandCounters for a given command
      * @param player the player to check
      * @param command the command to test
-     * @return true if found, false otherwise
+     * @return true if any found, false otherwise
      */
     boolean hasCommandCounter(Player player, Command command);
 
     /**
-     * Get the CommandCounter for a given command and player.
-     * <p>If it does not yet exist, it will be created.</p>
-     * @param command the command instance you seek to limit
-     * @param player the player to limit
-     * @return CommandCounter for player
+     * Get a new CommandCounter for a given command.
+     * @param command the command to count
      */
-    CommandCounter getCommandCounter(Command command, Player player);
+    CommandCounter getNewCommandCounter(Command command);
 
     /**
-     * Retrieve a List of all commands limited for a given player.
-     * @param player a player
-     * @return a List of all CommandCounters
+     * Obtain a read-only Set of CommandCounters for a given command and player.
+     * @param player the player to limit
+     * @param command the command being counted
+     * @return CommandCounters for command and player
      */
-    List<CommandCounter> getCountedCommands(Player player);
+    Set<CommandCounter> getCommandCounters(Player player, Command command);
+
+    /**
+     * Obtain full Set of all command counters for a given player.
+     * @param player the player
+     * @return set of all CommandCounters for the player
+     */
+    Set<CommandCounter> getCountedCommands(Player player);
 
     /**
      * Retrieve a Set of all command labels for the server
@@ -67,12 +72,13 @@ public interface CommandCountdownAPI {
     Command getCommandByName(String name);
 
     /**
-     * Lookup a Command by its hashcode, matching all aliases.
-     * @param hashCode the hashcode of command to retrieve
-     * @return command if found or null
+     * Lookup a Command by its String representation, matching all aliases.
+     * <p>This implementation allows for persistent resolution back to
+     * a Command across restarts and even between plugins.</p>
+     * @param toString the toString of a command to retrieve
+     * @return an Optional potentially containing the matching Command
      */
-    @Nullable
-    Command getCommandById(int hashCode);
+    Optional<Command> getCommandById(String toString);
 
     /**
      * Are limited commands' arguments case sensitive?

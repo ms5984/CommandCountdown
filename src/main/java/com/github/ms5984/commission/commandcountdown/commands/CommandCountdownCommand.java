@@ -117,29 +117,6 @@ public class CommandCountdownCommand extends CommandBase {
                     return true;
                 }
                 final Player target = optionalPlayer.get();
-                if (args.length == 3) {
-                    // checked if args[1] is name of player, is args[2] a command?
-                    final Command commandByName = api.getCommandByName(args[2]);
-                    if (commandByName == null) {
-                        // message invalid command
-                        sendMessage(sender, Messages.RESET_USAGE);
-                        return true;
-                    }
-                    if (CommandCountdown.getAPI().hasCommandCounter(target, commandByName)) {
-                        final PlayerData forPlayer = PlayerData.getForPlayer(target);
-                        forPlayer.getPlayerLimits().remove(commandByName);
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                forPlayer.saveToPdc();
-                                sendMessage(sender, String.format(Messages.REMOVED_COMMAND.toString(), commandByName.toString(), target.getName()));
-                            }
-                        }.runTask(providingPlugin);
-                        return true;
-                    }
-                    sendMessage(sender, Messages.NO_RESET);
-                    return true;
-                }
                 if (args.length == 2) {
                     final PlayerData playerData = PlayerData.getForPlayer(target);
                     playerData.getPlayerLimits().clear();
@@ -147,6 +124,38 @@ public class CommandCountdownCommand extends CommandBase {
                     sendMessage(sender, String.format(Messages.CLEARED_PLAYER.toString(), target.getName()));
                     return true;
                 }
+                // checked if args[1] is name of player, is args[2] a command?
+                final Command commandByName = api.getCommandByName(args[2]);
+                if (commandByName == null) {
+                    // message invalid command
+                    sendMessage(sender, Messages.RESET_USAGE);
+                    return true;
+                }
+                if (CommandCountdown.getAPI().hasCommandCounter(target, commandByName)) {
+                    final PlayerData forPlayer = PlayerData.getForPlayer(target);
+                    final CommandCounter testCounter = api.getNewCommandCounter(commandByName);
+                    if (args.length > 3) {
+                        testCounter.setArgs(Arrays.copyOfRange(args, 3, args.length));
+                    }
+                    final int testHash = testCounter.hashCode();
+                    final Set<CommandCounter> playerLimits = forPlayer.getPlayerLimits();
+                    playerLimits.removeAll(playerLimits.stream().filter(cc -> cc.hashCode() == testHash).collect(Collectors.toSet()));
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            forPlayer.saveToPdc();
+                            sendMessage(sender, String.format(
+                                    Messages.REMOVED_COMMAND.toString(),
+                                    testCounter.getFQN(),
+                                    Arrays.toString(testCounter.getArgs()),
+                                    target.getName())
+                            );
+                        }
+                    }.runTask(providingPlugin);
+                    return true;
+                }
+                sendMessage(sender, Messages.NO_RESET);
+                return true;
             } else if ("setlimit".equalsIgnoreCase(args[0])) {// check permission, get int, get command, get args
                 if (!sender.hasPermission(Permissions.SET_LIMIT.permission)) {
                     sendMessage(sender, getPermissionMessage());
@@ -191,11 +200,11 @@ public class CommandCountdownCommand extends CommandBase {
                     return true;
                 }
                 final Player player = optionalPlayer.get();
-                final CommandCounter commandCounter = api.getCommandCounter(commandByName, player);
-                commandCounter.setLimit(limit);
+                final CommandCounter commandCounter = api.getNewCommandCounter(commandByName);
                 if (args.length > 4) {
                     commandCounter.setArgs(Arrays.copyOfRange(args, 4, args.length));
                 }
+                commandCounter.setLimit(limit);
                 PlayerData.getForPlayer(player).storeCommandCounter(commandCounter);
                 System.out.println(commandCounter);
                 return true;

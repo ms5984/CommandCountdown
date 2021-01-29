@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class CommandCountdown extends JavaPlugin implements CommandCountdownAPI {
 
@@ -79,22 +80,30 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
     @Override
     public boolean hasCommandCounter(Player player, Command command) {
         if (command == null) return false;
+        final int hashCode = command.hashCode();
         return PlayerData.getForPlayer(player).getPlayerLimits().parallelStream()
+                .map(CommandCounter::getBaseCommand)
                 .map(Object::hashCode)
-                .anyMatch(hc -> hc == command.hashCode());
+                .anyMatch(hc -> hc == hashCode);
     }
 
     @Override
-    public CommandCounter getCommandCounter(Command command, Player player) {
+    public CommandCounter getNewCommandCounter(Command command) {
+        return new Counter(command);
+    }
+
+    @Override
+    public Set<CommandCounter> getCommandCounters(Player player, Command command) {
+        if (command == null) return Collections.emptySet();
+        final int hashCode = command.hashCode();
         return PlayerData.getForPlayer(player).getPlayerLimits().parallelStream()
-                .filter(cc -> cc.hashCode() == command.hashCode())
-                .findAny()
-                .orElseGet(() -> new Counter(command));
+                .filter(cc -> cc.getBaseCommand().hashCode() == hashCode)
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public List<CommandCounter> getCountedCommands(Player player) {
-        return Collections.unmodifiableList(PlayerData.getForPlayer(player).getPlayerLimits());
+    public Set<CommandCounter> getCountedCommands(Player player) {
+        return Collections.unmodifiableSet(PlayerData.getForPlayer(player).getPlayerLimits());
     }
 
     @Override
@@ -108,8 +117,8 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
     }
 
     @Override
-    public @Nullable Command getCommandById(int hashCode) {
-        return commandMappings.values().stream().filter(c -> hashCode() == hashCode).findAny().orElse(null);
+    public Optional<Command> getCommandById(String toString) {
+        return commandMappings.values().parallelStream().filter(c -> c.toString().equals(toString)).findAny();
     }
 
     @Override

@@ -36,7 +36,7 @@ public class PlayerData {
     private static final Supplier<NamespacedKey> DATA_KEY = CommandCountdown::getDataKey;
     private static final Map<Player, PlayerData> instances = new HashMap<>();
     private final Player player;
-    private final List<CommandCounter> playerLimits = new ArrayList<>();
+    private final Set<CommandCounter> playerLimits = new HashSet<>();
 
     private PlayerData(Player player) {
         this.player = player;
@@ -67,7 +67,7 @@ public class PlayerData {
                 final BukkitObjectInputStream inputStream = new BukkitObjectInputStream(new ByteArrayInputStream(pdcContents));
                 playerLimits.clear();
                 //noinspection unchecked
-                playerLimits.addAll((List<CommandCounter>) inputStream.readObject());
+                playerLimits.addAll((Set<CommandCounter>) inputStream.readObject());
                 System.out.println("Successfully loaded data from player");
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -80,10 +80,12 @@ public class PlayerData {
     }
 
     public void storeCommandCounter(CommandCounter commandCounter) {
+        final int hashCode = commandCounter.hashCode(); // incorporates command hash+args
+        playerLimits.stream().filter(cc -> cc.hashCode() == hashCode).findAny().ifPresent(playerLimits::remove);
         playerLimits.add(commandCounter);
     }
 
-    public List<CommandCounter> getPlayerLimits() {
+    public Set<CommandCounter> getPlayerLimits() {
         return playerLimits;
     }
 

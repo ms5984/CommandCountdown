@@ -25,7 +25,7 @@ Messages:
   Cleared-Player: "&7Cleared &f&lALL &7limits for player %s"
   Reset-Usage: '&cInvalid command. &7Usage: &f/cc reset &b<player_name> &a[command]'
   No-Reset: "&7This player does not have any limits for this command, no reset needed."
-  Removed-Command: "&e'%s' &7limits removed from player %s."
+  Removed-Command: "&e'%s' &8args:&7%s removed from player %s."
   Reload: 'Plugin messages file reloaded.'
   Need-Int: '&cYou must enter a number.'
   Invalid-Num: "&c'%s' is not a valid number."

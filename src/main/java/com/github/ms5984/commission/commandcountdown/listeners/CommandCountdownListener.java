@@ -33,6 +33,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class CommandCountdownListener implements Listener {
     private final CommandCountdownAPI api;
@@ -51,38 +52,44 @@ public class CommandCountdownListener implements Listener {
         if (!api.hasCommandCounter(player, command)) {
             return;
         }
-        final Counter counter = (Counter) api.getCommandCounter(command, player);
         final String[] eventArgs = e.getArgs();
-        final String[] counterArgs = counter.getArgs();
-        if (api.limitsCaseSensitive()) {
-            if (!Arrays.equals(eventArgs, counterArgs)) {
-                if (counterArgs.length <= eventArgs.length) {
-                    if (counterArgs.length == 0) return;
-                    for (int i = 0; i < counterArgs.length; ++i) {
-                        if (counterArgs[i].equals("*")) continue;
-                        if (!eventArgs[i].equals(counterArgs[i])) {
-                            return;
+        // Properly iterate over the new Set form
+        outer : for (Counter counter : api.getCommandCounters(player, command)
+                .parallelStream()
+                .map(cc -> (Counter)cc)
+                .collect(Collectors.toSet())) {
+            final String[] counterArgs = counter.getArgs();
+            if (api.limitsCaseSensitive()) {
+                if (!Arrays.equals(eventArgs, counterArgs)) {
+                    if (counterArgs.length <= eventArgs.length) {
+                        if (counterArgs.length == 0) continue;
+                        for (int i = 0; i < counterArgs.length; ++i) {
+                            if (counterArgs[i].equals("*")) continue;
+                            if (!eventArgs[i].equals(counterArgs[i])) {
+                                continue outer;
+                            }
                         }
-                    }
-                } else return;
-            }
-        } else {
-            if (!Arrays.equals(eventArgs, counterArgs)) {
-                if (counterArgs.length <= eventArgs.length) {
-                    if (counterArgs.length == 0) return;
-                    for (int i = 0; i < counterArgs.length; ++i) {
-                        if (counterArgs[i].equals("*")) continue;
-                        if (!eventArgs[i].equalsIgnoreCase(counterArgs[i])) {
-                            return;
+                    } else continue;
+                }
+            } else {
+                if (!Arrays.equals(eventArgs, counterArgs)) {
+                    if (counterArgs.length <= eventArgs.length) {
+                        if (counterArgs.length == 0) return;
+                        for (int i = 0; i < counterArgs.length; ++i) {
+                            if (counterArgs[i].equals("*")) continue;
+                            if (!eventArgs[i].equalsIgnoreCase(counterArgs[i])) {
+                                continue outer;
+                            }
                         }
-                    }
-                } else return;
+                    } else continue;
+                }
             }
+            if (counter.getLimit() == -1) continue;
+            // We have figured out that this command is in fact limited
+            e.setCancelled(true);
+            plugin.getServer().getPluginManager().callEvent(new PlayerRunLimitedCommandEvent(e, counter));
+            break;
         }
-        if (counter.getLimit() == -1) return;
-        // We have figured out that this command is in fact limited
-        e.setCancelled(true);
-        plugin.getServer().getPluginManager().callEvent(new PlayerRunLimitedCommandEvent(e, counter));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
