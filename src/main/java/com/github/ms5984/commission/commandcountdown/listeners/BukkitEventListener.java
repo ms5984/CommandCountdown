@@ -39,10 +39,9 @@ public class BukkitEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCommandPreProcessEvent(PlayerCommandPreprocessEvent e) {
-        final String[] split = e.getMessage().split(" ");
+        final String[] split = e.getMessage().split(" +");
         final Command commandByName = CommandCountdown.getAPI().getCommandByName(split[0].substring(1));
         if (commandByName != null) {
-            System.out.println(commandByName);
             final PlayerRunCommandEvent event;
             if (split.length > 1) {
                 event = new PlayerRunCommandEvent(e, commandByName, Arrays.copyOfRange(split, 1, split.length));

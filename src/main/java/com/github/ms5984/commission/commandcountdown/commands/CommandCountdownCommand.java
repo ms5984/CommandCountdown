@@ -206,7 +206,7 @@ public class CommandCountdownCommand extends CommandBase {
                 }
                 commandCounter.setLimit(limit);
                 PlayerData.getForPlayer(player).storeCommandCounter(commandCounter);
-                System.out.println(commandCounter);
+                sendMessage(player, String.format(Messages.ADDED_COMMAND.toString(), commandCounter));
                 return true;
             }
         }

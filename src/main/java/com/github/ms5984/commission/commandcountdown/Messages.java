@@ -38,6 +38,7 @@ public enum Messages {
     CLEARED_PLAYER("Messages.Cleared-Player"),
     RESET_USAGE("Messages.Reset-Usage"),
     NO_RESET("Messages.No-Reset"),
+    ADDED_COMMAND("Messages.Added-Command"),
     REMOVED_COMMAND("Messages.Removed-Command"),
     RELOAD("Messages.Reload"),
     NEED_INT("Messages.Need-Int"),
