@@ -31,6 +31,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,6 +49,7 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
     public void onEnable() {
         // Plugin startup logic
         instance = this;
+        getServer().getServicesManager().register(CommandCountdownAPI.class, this, this, ServicePriority.Normal);
         loadCommandsMap();
         Messages.initialize();
         CommandBase.Permissions.registerPermissions();
@@ -61,6 +63,7 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
         // Plugin shutdown logic
         PlayerData.saveData();
         commandMappings = null;
+        getServer().getServicesManager().unregister(this);
     }
 
     private void loadCommandsMap() {

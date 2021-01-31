@@ -18,9 +18,10 @@
  */
 package com.github.ms5984.commission.commandcountdown.api;
 
-import com.github.ms5984.commission.commandcountdown.CommandCountdown;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -103,10 +104,14 @@ public interface CommandCountdownAPI {
     boolean matchAllArgs();
 
     /**
-     * Get an instance of the API.
+     * Get an instance of the API using Bukkit's RegisteredServiceProvider.
      * @return CommandCountdownAPI
+     * @throws IllegalStateException if the plugin is not registered
      */
-    static CommandCountdownAPI getInstance() {
-        return CommandCountdown.getAPI();
+    static CommandCountdownAPI getInstance() throws IllegalStateException {
+        final RegisteredServiceProvider<CommandCountdownAPI> rsp = Bukkit.getServicesManager()
+                .getRegistration(CommandCountdownAPI.class);
+        if (rsp == null) throw new IllegalStateException("CommandCountdown is not loaded.");
+        return rsp.getProvider();
     }
 }
