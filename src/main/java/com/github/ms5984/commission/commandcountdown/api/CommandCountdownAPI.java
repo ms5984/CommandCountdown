@@ -87,6 +87,22 @@ public interface CommandCountdownAPI {
     boolean limitsCaseSensitive();
 
     /**
+     * Should we manually process commands for players and keep original count on failures?
+     * <p>This feature prevents counts from incrementing when a command fails for a player.
+     * It uses the boolean result of {@link Command#execute}, which might not return false in
+     * all types of "failure" (no permissions, etc). If you want EVERY potential command
+     * execution to be counted against the player, set this to false in the config.</p>
+     * @return defaults to true, false by config flag
+     */
+    boolean keepCountOnFailure();
+
+    /**
+     * Should limits with fewer args than given also match?
+     * @return true, false by config flag
+     */
+    boolean matchAllArgs();
+
+    /**
      * Get an instance of the API.
      * @return CommandCountdownAPI
      */

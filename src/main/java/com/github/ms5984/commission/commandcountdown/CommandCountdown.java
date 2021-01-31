@@ -123,7 +123,17 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
 
     @Override
     public boolean limitsCaseSensitive() {
-        return getConfig().getBoolean("");
+        return getConfig().getBoolean("args-case-sensitive");
+    }
+
+    @Override
+    public boolean keepCountOnFailure() {
+        return getConfig().getBoolean("keep-count-on-failure");
+    }
+
+    @Override
+    public boolean matchAllArgs() {
+        return getConfig().getBoolean("match-all-args");
     }
 
     public static CommandCountdownAPI getAPI() {

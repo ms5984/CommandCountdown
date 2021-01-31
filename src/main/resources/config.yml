@@ -28,6 +28,14 @@ args-case-sensitive: false
 ## to be counted against the player, set this to false.
 keep-count-on-failure: true
 
+# Should limits with fewer args than given also match?
+# ### Warning: false not fully implemented at the moment.###
+## This setting decides whether not the counters and commands run match like the following:
+## -rule: cmd='auctionhouse:ah' args:[sell]
+## -cmd1: /ah sell 10 5 # true = match
+## -cmd2: /ah sell 10 5 # false = won't match
+match-all-args: true
+
 default-limits:
   ### Config example!
 #  "auctionhouse:ah":

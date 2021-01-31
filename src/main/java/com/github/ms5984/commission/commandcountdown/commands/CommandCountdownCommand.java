@@ -98,6 +98,7 @@ public class CommandCountdownCommand extends CommandBase {
                     sendMessage(sender, getPermissionMessage());
                     return true;
                 }
+                providingPlugin.reloadConfig();
                 Messages.initialize();
                 sendMessage(sender, Messages.RELOAD);
                 return true;
