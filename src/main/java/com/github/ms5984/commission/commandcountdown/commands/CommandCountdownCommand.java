@@ -225,7 +225,7 @@ public class CommandCountdownCommand extends CommandBase {
                 tab0.add("info");
             }
             if (sender.hasPermission(Permissions.SET_DEFAULT_LIMIT.permission)) {
-                tab0.add("setdefaultlimit");
+                tab0.add("setdefault");
             }
             if (sender.hasPermission(Permissions.SET_LIMIT.permission)) {
                 tab0.add("setlimit");
@@ -249,7 +249,7 @@ public class CommandCountdownCommand extends CommandBase {
                         return super.tabComplete(sender, alias, args);
                     }
                     break;
-                case "setdefaultlimit":
+                case "setdefault":
                     if (!sender.hasPermission(Permissions.SET_DEFAULT_LIMIT.permission)) {
                         break;
                     }
@@ -262,7 +262,7 @@ public class CommandCountdownCommand extends CommandBase {
             }
             return Collections.emptyList();
         } else if (length == 3) {
-            if (args[0].equalsIgnoreCase("setdefaultlimit")) {
+            if (args[0].equalsIgnoreCase("setdefault")) {
                 StringUtil.copyPartialMatches(args[2], api.getServerCommandListing(), completions);
             } else if (args[0].equalsIgnoreCase("setlimit")) {
                 return super.tabComplete(sender, alias, args);
@@ -286,7 +286,7 @@ public class CommandCountdownCommand extends CommandBase {
         } else if (length == 4) {
             if (args[0].equalsIgnoreCase("setlimit")) {
                 StringUtil.copyPartialMatches(args[3], api.getServerCommandListing(), completions);
-            } else if (args[0].equalsIgnoreCase("setdefaultlimit")) {
+            } else if (args[0].equalsIgnoreCase("setdefault")) {
                 if (api.getServerCommandListing().contains(args[2].toLowerCase())) {
                     final Command commandByName = api.getCommandByName(args[2]);
                     if (commandByName != null) {
