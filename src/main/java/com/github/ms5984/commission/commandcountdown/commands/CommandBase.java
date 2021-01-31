@@ -82,6 +82,7 @@ public abstract class CommandBase extends Command {
         INFO_STAR(new Permission("cc.info.*", "Information of own limits and of others"), STAR, true),
         INFO_OTHERS(new Permission("cc.info.others", "Inspect limits of others"), INFO_STAR, true),
         INFO(new Permission("cc.info", "Information about your own limits", PermissionDefault.TRUE), INFO_STAR, true),
+        RESET_DEFAULT_LIMIT(new Permission("cc.resetdefaultlimit", "Remove server-wide default limit"), STAR, true),
         SET_DEFAULT_LIMIT(new Permission("cc.setdefaultlimit", "Setup server-wide default limit"), STAR, true),
         SET_LIMIT(new Permission("cc.setlimit", "Set player-specific limits"), SET_DEFAULT_LIMIT, true),
         EXEMPT(new Permission("cc.exempt", "Temporarily bypass all limits", PermissionDefault.FALSE), STAR, false),

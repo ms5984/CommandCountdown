@@ -224,9 +224,6 @@ public class CommandCountdownCommand extends CommandBase {
             if (sender.hasPermission(Permissions.INFO.permission)) {
                 tab0.add("info");
             }
-            if (sender.hasPermission(Permissions.SET_DEFAULT_LIMIT.permission)) {
-                tab0.add("setdefault");
-            }
             if (sender.hasPermission(Permissions.SET_LIMIT.permission)) {
                 tab0.add("setlimit");
             }
@@ -235,6 +232,12 @@ public class CommandCountdownCommand extends CommandBase {
             }
             if (sender.hasPermission(Permissions.RESET_PLAYER.permission)) {
                 tab0.add("reset");
+            }
+            if (sender.hasPermission(Permissions.SET_DEFAULT_LIMIT.permission)) {
+                tab0.add("setdefault");
+            }
+            if (sender.hasPermission(Permissions.RESET_DEFAULT_LIMIT.permission)) {
+                tab0.add("resetdefault");
             }
             StringUtil.copyPartialMatches(args[0], tab0, completions);
         } else if (length == 2) {
