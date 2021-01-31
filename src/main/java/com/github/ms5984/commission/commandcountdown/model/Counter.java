@@ -18,7 +18,7 @@
  */
 package com.github.ms5984.commission.commandcountdown.model;
 
-import com.github.ms5984.commission.commandcountdown.CommandCountdown;
+import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
@@ -32,6 +32,7 @@ import java.util.Objects;
 public class Counter implements CommandCounter {
 
     private static final long serialVersionUID = 9016468129961710867L;
+    private static CommandCountdownAPI commandCountdownAPI;
     private transient Command command;
     private final String label;
     private final List<String> args = new ArrayList<>();
@@ -41,6 +42,9 @@ public class Counter implements CommandCounter {
     private int limit;
 
     public Counter(Command command) {
+        if (commandCountdownAPI == null) {
+            commandCountdownAPI = CommandCountdownAPI.getInstance();
+        }
         this.command = command;
         this.label = command.getLabel();
         this.command_toString = command.toString();
@@ -52,7 +56,7 @@ public class Counter implements CommandCounter {
     @Override
     public Command getBaseCommand() {
         if (command == null) {
-            command = CommandCountdown.getAPI().getCommandById(command_toString).orElseGet(() -> new NullCommand(this));
+            command = commandCountdownAPI.getCommandById(command_toString).orElseGet(() -> new NullCommand(this));
         }
         return command;
     }
@@ -69,10 +73,10 @@ public class Counter implements CommandCounter {
             return providingPlugin.getName() + ":" + label;
         } catch (IllegalArgumentException e) {
             // search the commandMap
-            return CommandCountdown.getAPI().getServerCommandListing().stream()
+            return commandCountdownAPI.getServerCommandListing().stream()
                     .filter(s -> s.endsWith(":" + label))
                     .filter(s -> {
-                        final Command commandByName = CommandCountdown.getAPI().getCommandByName(s);
+                        final Command commandByName = commandCountdownAPI.getCommandByName(s);
                         if (commandByName == null) return false;
                         return commandByName.toString().equals(command_toString);
                     }).findAny().orElse("?:" + label);

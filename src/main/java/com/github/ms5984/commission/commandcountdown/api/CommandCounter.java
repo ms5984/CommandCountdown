@@ -69,11 +69,9 @@ public interface CommandCounter extends Serializable {
     int getCurrentCount();
 
     /**
-     * Directly set current number of uses.
-     * <p>This method should not be used in most cases.</p>
+     * Set current number of uses.
      * @param uses new number of uses
      */
-    @Deprecated
     void setCurrentCount(int uses);
 
     /**
