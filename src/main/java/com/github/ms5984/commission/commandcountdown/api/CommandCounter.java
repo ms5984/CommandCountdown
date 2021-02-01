@@ -62,19 +62,6 @@ public interface CommandCounter extends Serializable {
     void setArgs(String... args);
 
     /**
-     * Get current number of uses.
-     * @return number of times the command was used since
-     * last reset of current count.
-     */
-    int getCurrentCount();
-
-    /**
-     * Set current number of uses.
-     * @param uses new number of uses
-     */
-    void setCurrentCount(int uses);
-
-    /**
      * Get the current set limit.
      *
      * @return max number of uses. Returns -1 if unlimited
@@ -88,9 +75,4 @@ public interface CommandCounter extends Serializable {
      * @param count number of uses
      */
     void setLimit(int count);
-
-    /**
-     * Resets the current number of uses.
-     */
-    void resetCurrentCount();
 }

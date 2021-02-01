@@ -68,8 +68,8 @@ default-limits:
 _Variably licensed under the terms of the GPLv3.0 and LGPLv3.0._
 ##### LGPLv3.0 components:
 - [All event classes](https://github.com/ms5984/CommandCountdown/blob/master/src/main/java/com/github/ms5984/commission/commandcountdown/events/)
-- [CommandCountdownAPI](https://github.com/ms5984/CommandCountdown/blob/master/src/main/java/com/github/ms5984/commission/commandcountdown/api/CommandCountdownAPI.java)
-- [CommandCounter](https://github.com/ms5984/CommandCountdown/blob/master/src/main/java/com/github/ms5984/commission/commandcountdown/api/CommandCounter.java)
-- [Counter.java](https://github.com/ms5984/CommandCountdown/blob/master/src/main/java/com/github/ms5984/commission/commandcountdown/model/Counter.java)
+- [All API classes](https://github.com/ms5984/CommandCountdown/blob/master/src/main/java/com/github/ms5984/commission/commandcountdown/api/)
+- [AbstractCounter](https://github.com/ms5984/CommandCountdown/blob/master/src/main/java/com/github/ms5984/commission/commandcountdown/model/AbstractCounter.java)
+- [PlayerCounterImpl](https://github.com/ms5984/CommandCountdown/blob/master/src/main/java/com/github/ms5984/commission/commandcountdown/model/PlayerCounterImpl.java)
 - [NullCommand.java](https://github.com/ms5984/CommandCountdown/blob/master/src/main/java/com/github/ms5984/commission/commandcountdown/model/Nullcommand.java)
 ##### _All other components subject to GPLv3.0._

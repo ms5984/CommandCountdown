@@ -20,6 +20,7 @@ package com.github.ms5984.commission.commandcountdown.model;
 
 import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
+import com.github.ms5984.commission.commandcountdown.api.PlayerCounter;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,26 +30,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class Counter implements CommandCounter {
+public abstract class AbstractCounter implements CommandCounter {
 
-    private static final long serialVersionUID = 9016468129961710867L;
-    private static CommandCountdownAPI commandCountdownAPI;
-    private transient Command command;
-    private final String label;
-    private final List<String> args = new ArrayList<>();
+    private static final long serialVersionUID = -6772027747131626181L;
+    protected static CommandCountdownAPI commandCountdownAPI;
+    protected transient Command command;
+    protected final String label;
+    protected final List<String> args = new ArrayList<>();
     protected String lastFQN;
     public final String command_toString;
-    public int count;
-    private int limit;
+    protected int limit;
 
-    public Counter(Command command) {
+    public AbstractCounter(Command command) {
         if (commandCountdownAPI == null) {
             commandCountdownAPI = CommandCountdownAPI.getInstance();
         }
         this.command = command;
         this.label = command.getLabel();
         this.command_toString = command.toString();
-        this.count = 0;
         this.limit = -1;
         this.lastFQN = getFQN();
     }
@@ -95,16 +94,6 @@ public class Counter implements CommandCounter {
     }
 
     @Override
-    public int getCurrentCount() {
-        return count;
-    }
-
-    @Override
-    public void setCurrentCount(int uses) {
-        this.count = uses;
-    }
-
-    @Override
     public int getLimit() {
         return limit;
     }
@@ -112,11 +101,6 @@ public class Counter implements CommandCounter {
     @Override
     public void setLimit(int count) {
         this.limit = count;
-    }
-
-    @Override
-    public void resetCurrentCount() {
-        this.count = 0;
     }
 
     @Override
@@ -129,6 +113,6 @@ public class Counter implements CommandCounter {
         return ChatColor.translateAlternateColorCodes('&',
                 String.format("&7Command: '&e%s&7' &8args:&7%s &elimit:[%s] &bcount:[%s]",
                         (command instanceof NullCommand) ? "missing!" + ((NullCommand) command).getLastFQN() : getFQN(),
-                        (args.isEmpty()) ? "NONE" : args, limit, count));
+                        (args.isEmpty()) ? "NONE" : args, limit, "{count}"));
     }
 }
