@@ -21,6 +21,7 @@ package com.github.ms5984.commission.commandcountdown;
 import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
 import com.github.ms5984.commission.commandcountdown.api.DefaultCounter;
+import com.github.ms5984.commission.commandcountdown.api.PlayerCounter;
 import com.github.ms5984.commission.commandcountdown.commands.CommandBase;
 import com.github.ms5984.commission.commandcountdown.commands.CommandCountdownCommand;
 import com.github.ms5984.commission.commandcountdown.listeners.BukkitEventListener;
@@ -95,8 +96,13 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
     }
 
     @Override
-    public CommandCounter getNewCommandCounter(Command command) {
-        return new Counter(command);
+    public PlayerCounter getNewPlayerCounter(Command command) {
+        return new PlayerCounterImpl(command);
+    }
+
+    @Override
+    public DefaultCounter getNewDefaultCounter(Command command) {
+        return new DefaultCounterImpl(command);
     }
 
     @Override

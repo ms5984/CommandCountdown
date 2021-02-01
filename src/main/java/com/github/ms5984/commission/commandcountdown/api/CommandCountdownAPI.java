@@ -38,10 +38,16 @@ public interface CommandCountdownAPI {
     boolean hasCommandCounter(Player player, Command command);
 
     /**
-     * Get a new CommandCounter for a given command.
+     * Get a new PlayerCounter for a given command.
      * @param command the command to count
      */
-    CommandCounter getNewCommandCounter(Command command);
+    PlayerCounter getNewPlayerCounter(Command command);
+
+    /**
+     * Get a new DefaultCounter for a given command.
+     * @param command the command to count
+     */
+    DefaultCounter getNewDefaultCounter(Command command);
 
     /**
      * Obtain a read-only Set of CommandCounters for a given command and player.
