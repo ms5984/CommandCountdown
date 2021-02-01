@@ -59,6 +59,12 @@ public interface CommandCountdownAPI {
     Set<CommandCounter> getCountedCommands(Player player);
 
     /**
+     * Get a read-only Set of all default CommandCounters
+     * @return default Set of CommandCounters
+     */
+    Set<DefaultCounter> getDefaults();
+
+    /**
      * Retrieve a Set of all command labels for the server
      * @return an unmodifiable Set backed by the server command map
      */

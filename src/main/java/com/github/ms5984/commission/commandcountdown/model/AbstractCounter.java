@@ -20,9 +20,9 @@ package com.github.ms5984.commission.commandcountdown.model;
 
 import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
-import com.github.ms5984.commission.commandcountdown.api.PlayerCounter;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -47,7 +47,13 @@ public abstract class AbstractCounter implements CommandCounter {
         }
         this.command = command;
         this.label = command.getLabel();
-        this.command_toString = command.toString();
+        if (command instanceof PluginCommand) {
+            final StringBuilder sb = new StringBuilder(command.toString());
+            sb.delete(sb.lastIndexOf(" v"), sb.indexOf(")")); // Strip out Plugin version
+            this.command_toString = sb.toString();
+        } else {
+            this.command_toString = command.toString();
+        }
         this.limit = -1;
         this.lastFQN = getFQN();
     }
@@ -77,6 +83,10 @@ public abstract class AbstractCounter implements CommandCounter {
                     .filter(s -> {
                         final Command commandByName = commandCountdownAPI.getCommandByName(s);
                         if (commandByName == null) return false;
+                        if (commandByName instanceof PluginCommand) {
+                            return commandByName.toString()
+                                    .startsWith(command_toString.substring(0, command_toString.indexOf(")")));
+                        }
                         return commandByName.toString().equals(command_toString);
                     }).findAny().orElse("?:" + label);
         }
