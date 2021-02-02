@@ -26,6 +26,7 @@ import com.github.ms5984.commission.commandcountdown.commands.CommandBase;
 import com.github.ms5984.commission.commandcountdown.commands.CommandCountdownCommand;
 import com.github.ms5984.commission.commandcountdown.listeners.BukkitEventListener;
 import com.github.ms5984.commission.commandcountdown.listeners.CommandCountdownListener;
+import com.github.ms5984.commission.commandcountdown.model.ConfigCommandData;
 import com.github.ms5984.commission.commandcountdown.model.DefaultCounterImpl;
 import com.github.ms5984.commission.commandcountdown.model.PlayerCounterImpl;
 import com.github.ms5984.commission.commandcountdown.model.PlayerData;
@@ -33,7 +34,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -41,7 +41,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public final class CommandCountdown extends JavaPlugin implements CommandCountdownAPI {
@@ -54,6 +53,7 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
     public void onEnable() {
         // Plugin startup logic
         instance = this;
+        saveDefaultConfig();
         getServer().getServicesManager().register(CommandCountdownAPI.class, this, this, ServicePriority.Normal);
         loadCommandsMap();
         Messages.initialize();
@@ -124,21 +124,7 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
 
     @Override
     public Set<DefaultCounter> getDefaults() {
-        final ConfigurationSection defaultLimits = getConfig().getConfigurationSection("default-limits");
-        if (defaultLimits == null) return Collections.emptySet();
-        return Collections.unmodifiableSet(CompletableFuture.supplyAsync(() -> {
-            final HashSet<DefaultCounter> commandCounterSet = new HashSet<>();
-            for (String commandLabel : defaultLimits.getKeys(false)) {
-                if (commandLabel.endsWith(")")) {
-                    getCommandById(commandLabel).map(DefaultCounterImpl::new).ifPresent(commandCounterSet::add);
-                    continue;
-                }
-                final Command byName = getCommandByName(commandLabel);
-                if (byName == null) continue;
-                commandCounterSet.add(new DefaultCounterImpl(byName));
-            }
-            return commandCounterSet;
-        }).join());
+        return Collections.unmodifiableSet(ConfigCommandData.getFiles());
     }
 
     @Override

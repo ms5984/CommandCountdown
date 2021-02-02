@@ -36,23 +36,4 @@ keep-count-on-failure: true
 ## -cmd2: /ah sell 10 5 # false = won't match
 match-all-args: true
 
-default-limits:
-  ### Config example!
-#  "auctionhouse:ah":
-#    my-limit:
-#      args: ["sell", "*"]
-#      limit: 5
-#    another-limit:
-#      args: ["buy"]
-#      limit: 1
-  ### This is how CommandCountdown stores a default limit entry.
-  # Note: you can specify the prefix of a plugin in case multiple define the same alias.
-  # This is not required but is available as a convenience.
-  # the wildcard "*" matches ANY further input (including third, forth argument)
-
-  ### Simple example
-#  sethome:
-#    unique-rule-name:
-#      args: []
-#      limit: 1
-  ### This will limit players to run /sethome *once*
+##### Default limit configs are found under the `CommandCountdown/commands` folder #####

@@ -20,6 +20,7 @@ package com.github.ms5984.commission.commandcountdown.model;
 
 import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
+import com.github.ms5984.commission.commandcountdown.util.CommandUtil;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
@@ -75,17 +76,7 @@ public abstract class AbstractCounter implements CommandCounter {
             return providingPlugin.getName() + ":" + label;
         } catch (IllegalArgumentException e) {
             // search the commandMap
-            return getAPI().getServerCommandListing().stream()
-                    .filter(s -> s.endsWith(":" + label))
-                    .filter(s -> {
-                        final Command commandByName = getAPI().getCommandByName(s);
-                        if (commandByName == null) return false;
-                        if (commandByName instanceof PluginCommand) {
-                            return commandByName.toString()
-                                    .startsWith(command_toString.substring(0, command_toString.indexOf(")")));
-                        }
-                        return commandByName.toString().equals(command_toString);
-                    }).findAny().orElse("?:" + label);
+            return CommandUtil.getFallbackPrefixedLabel(command).orElse("?:" + label);
         }
     }
 

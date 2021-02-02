@@ -1,0 +1,11 @@
+### Default example
+# File name "example-rule.yml" = match command 'rule' from plugin 'example'
+limits:
+  my-limit:               # any name here, just has to be simple, unique key
+    args: ["sell", "*"]
+    limit: 5
+  another-limit:
+    args: ["buy"]
+    limit: 1
+### This is how CommandCountdown stores a default limit entry.
+# the wildcard "*" matches ANY input

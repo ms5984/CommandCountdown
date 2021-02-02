@@ -18,10 +18,26 @@
  */
 package com.github.ms5984.commission.commandcountdown.util;
 
+import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
+import com.github.ms5984.commission.commandcountdown.model.NullCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 
+import java.util.Optional;
+
+/**
+ * A set of utilities for working with Commands.
+ */
 public class CommandUtil {
+    private static CommandCountdownAPI api;
+
+    /**
+     * Get a sanitized version of {@link Command#toString()} that
+     * strips out the version portion of {@link PluginCommand}'s
+     * implementation.
+     * @param command command to sanitize
+     * @return toString of Command without version String
+     */
     public static String getSanitized_toString(Command command) {
         if (command instanceof PluginCommand) {
             final StringBuilder sb = new StringBuilder(command.toString());
@@ -29,5 +45,31 @@ public class CommandUtil {
             return sb.toString();
         }
         return command.toString();
+    }
+
+    /**
+     * Get fallback-prefixed command using data directly from
+     * the server commandMap.
+     * @param command the command to look for
+     * @return an Optional String
+     */
+    public static Optional<String> getFallbackPrefixedLabel(Command command) {
+        if (command instanceof NullCommand || command == null) return Optional.empty();
+        final String label = command.getLabel();
+        final String command_toString = command.toString();
+        return getAPI().getServerCommandListing().stream()
+                .filter(s -> s.endsWith(":" + label))
+                .filter(s -> {
+                    final Command commandByName = getAPI().getCommandByName(s);
+                    if (commandByName == null) return false;
+                    return commandByName.toString().equals(command_toString);
+                }).findAny();
+    }
+
+    private static CommandCountdownAPI getAPI() {
+        if (api == null) {
+            api = CommandCountdownAPI.getInstance();
+        }
+        return api;
     }
 }
