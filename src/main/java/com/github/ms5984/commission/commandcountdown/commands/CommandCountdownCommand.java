@@ -232,13 +232,52 @@ public class CommandCountdownCommand extends CommandBase {
                 if (args.length > 4) {
                     playerCounter.setArgs(Arrays.copyOfRange(args, 4, args.length));
                 }
-                commandCounter.setLimit(limit);
-                PlayerData.getForPlayer(player).storeCommandCounter(commandCounter);
-                sendMessage(player, String.format(Messages.ADDED_COMMAND.toString(), commandCounter));
+                playerCounter.setLimit(limit);
+                PlayerData.getForPlayer(player).storePlayerCounter(playerCounter);
+                sendMessage(player, String.format(Messages.ADDED_COMMAND.toString(), playerCounter));
                 return true;
+            } else if ("setdefault".equalsIgnoreCase(args[0])) {
+                if (!sender.hasPermission(Permissions.SET_DEFAULT_LIMIT.permission)) {
+                    sendMessage(sender, getPermissionMessage());
+                    return true;
+                }
+                if (args.length < 2) {
+                    // msg usage (need int)
+                    sendMessage(sender, Messages.NEED_INT);
+                    return true;
+                }
+                final int limit;
+                try {
+                    limit = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    // msg invalid number
+                    sendMessage(sender, String.format(Messages.INVALID_NUMBER.toString(), args[1]));
+                    return true;
+                }
+                if (limit < -1) {
+                    // avoid garbage objects
+                    sendMessage(sender, String.format(Messages.INVALID_NUMBER.toString(), limit));
+                    return true;
+                }
+                if (args.length < 3) {
+                    // need to specify a command
+                    sendMessage(sender, Messages.SPECIFY_COMMAND);
+                    return true;
+                }
+                final Command commandByName = api.getCommandByName(args[2]);
+                if (commandByName == null) {
+                    sendMessage(sender, String.format(Messages.INVALID_COMMAND.toString(), args[2]));
+                    return true;
+                }
+                final DefaultCounter defaultCounter = api.getNewDefaultCounter(commandByName);
+                if (args.length > 3) {
+                    defaultCounter.setArgs(Arrays.copyOfRange(args, 3, args.length));
+                }
+                defaultCounter.setLimit(limit);
+                ConfigCommandData.getForCommand(commandByName).storeDefault(defaultCounter);
+                sendMessage(sender, String.format(Messages.ADDED_DEFAULT.toString(), defaultCounter));
             }
         }
-        System.out.println("yeah flags");
         return false;
     }
 
@@ -289,6 +328,10 @@ public class CommandCountdownCommand extends CommandBase {
                         break;
                     }
                     return Arrays.asList("1", "2", "3");
+                case "resetdefault":
+                    if (sender.hasPermission(Permissions.RESET_DEFAULT_LIMIT.permission)) {
+                    }
+                    break;
             }
             return Collections.emptyList();
         } else if (length == 3) {
