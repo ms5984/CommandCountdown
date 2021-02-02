@@ -367,12 +367,19 @@ public class CommandCountdownCommand extends CommandBase {
                     }
                 }
             }
-        } else if (length == 5) {
+        } else {
             if (args[0].equalsIgnoreCase("setlimit")) {
                 if (api.getServerCommandListing().contains(args[3].toLowerCase())) {
                     final Command commandByName = api.getCommandByName(stripSlash(args[3]));
                     if (commandByName != null) {
                         return commandByName.tabComplete(sender, alias, Arrays.copyOfRange(args, 4, args.length));
+                    }
+                }
+            } else if (args[0].equalsIgnoreCase("setdefault")) {
+                if (api.getServerCommandListing().contains(args[2].toLowerCase())) {
+                    final Command commandByName = api.getCommandByName(stripSlash(args[2]));
+                    if (commandByName != null) {
+                        return commandByName.tabComplete(sender, alias, Arrays.copyOfRange(args, 3, args.length));
                     }
                 }
             }
