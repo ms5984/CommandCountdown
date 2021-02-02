@@ -22,25 +22,29 @@ import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Fired when a command is determined to be limited for a player.
  */
 public final class PlayerRunLimitedCommandEvent extends PlayerRunCommandEvent {
     private static final HandlerList HANDLERS = new HandlerList();
-    private final CommandCounter counter;
+    private final List<CommandCounter> counter;
 
-    public PlayerRunLimitedCommandEvent(PlayerRunCommandEvent e, CommandCounter counter) {
+    public PlayerRunLimitedCommandEvent(PlayerRunCommandEvent e, CommandCounter... counter) {
         super(e);
         cancelled = false;
-        this.counter = counter;
+        this.counter = Arrays.asList(counter);
     }
 
     /**
-     * Get the CommandCounter for this player-command combo.
+     * Get the CommandCounters for this player-command combo.
      * @return data for the player and command
      */
-    public CommandCounter getCommandCounter() {
-        return counter;
+    public List<CommandCounter> getCommandCounters() {
+        return Collections.unmodifiableList(counter);
     }
 
     @Override

@@ -106,20 +106,20 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
     }
 
     @Override
-    public Set<CommandCounter> getCommandCounters(Player player, Command command) {
-        if (command == null) return Collections.emptySet();
+    public Collection<CommandCounter> getCommandCounters(Player player, Command command) {
+        if (command == null) return Collections.emptyList();
         final int hashCode = command.hashCode();
-        return getCountedCommands(player).parallelStream()
+        return Collections.unmodifiableList(getCountedCommands(player).parallelStream()
                 .filter(cc -> cc.getBaseCommand().hashCode() == hashCode)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList()));
     }
 
     @Override
-    public Set<CommandCounter> getCountedCommands(Player player) {
-        final Set<CommandCounter> fullSet = new HashSet<>();
-        fullSet.addAll(PlayerData.getForPlayer(player).getPlayerLimits());
-        fullSet.addAll(getDefaults());
-        return Collections.unmodifiableSet(fullSet);
+    public Collection<CommandCounter> getCountedCommands(Player player) {
+        final List<CommandCounter> fullList = new ArrayList<>();
+        fullList.addAll(PlayerData.getForPlayer(player).getPlayerLimits());
+        fullList.addAll(getDefaults());
+        return Collections.unmodifiableList(fullList);
     }
 
     @Override

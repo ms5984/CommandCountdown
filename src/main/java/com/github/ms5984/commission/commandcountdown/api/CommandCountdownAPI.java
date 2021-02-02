@@ -24,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -50,19 +51,20 @@ public interface CommandCountdownAPI {
     DefaultCounter getNewDefaultCounter(Command command);
 
     /**
-     * Obtain a read-only Set of CommandCounters for a given command and player.
+     * Obtain all CommandCounters for a given command and player.
      * @param player the player to limit
      * @param command the command being counted
      * @return CommandCounters for command and player
      */
-    Set<CommandCounter> getCommandCounters(Player player, Command command);
+    Collection<CommandCounter> getCommandCounters(Player player, Command command);
 
     /**
-     * Obtain full Set of all command counters for a given player.
+     * Obtain all command counters for a given player.
+     * <p>May contain both PlayerCounters and DefaultCounters.</p>
      * @param player the player
-     * @return set of all CommandCounters for the player
+     * @return list of all CommandCounters for the player
      */
-    Set<CommandCounter> getCountedCommands(Player player);
+    Collection<CommandCounter> getCountedCommands(Player player);
 
     /**
      * Get a read-only Set of all default CommandCounters
