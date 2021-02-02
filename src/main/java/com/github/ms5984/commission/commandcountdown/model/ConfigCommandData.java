@@ -56,7 +56,12 @@ public class ConfigCommandData {
         if (file.exists()) {
             configuration = YamlConfiguration.loadConfiguration(file);
         } else {
-            configuration = new YamlConfiguration();
+            final File simpleLabel = new File(COMMAND_FOLDER.get(), command.getLabel());
+            final YamlConfiguration newConfig = new YamlConfiguration();
+            if (simpleLabel.exists()) {
+                newConfig.addDefaults(YamlConfiguration.loadConfiguration(simpleLabel));
+            }
+            configuration = newConfig;
         }
         this.limitsSection = (configuration.isConfigurationSection("limits"))
                 ? configuration.getConfigurationSection("limits") : configuration.createSection("limits");

@@ -153,7 +153,7 @@ public class CommandCountdownCommand extends CommandBase {
                     return true;
                 }
                 // checked if args[1] is name of player, is args[2] a command?
-                final Command commandByName = api.getCommandByName(args[2]);
+                final Command commandByName = api.getCommandByName(stripSlash(args[2]));
                 if (commandByName == null) {
                     // message invalid command
                     sendMessage(sender, Messages.RESET_USAGE);
@@ -222,7 +222,7 @@ public class CommandCountdownCommand extends CommandBase {
                     sendMessage(sender, Messages.SPECIFY_COMMAND);
                     return true;
                 }
-                final Command commandByName = api.getCommandByName(args[3]);
+                final Command commandByName = api.getCommandByName(stripSlash(args[3]));
                 if (commandByName == null) {
                     sendMessage(sender, String.format(Messages.INVALID_COMMAND.toString(), args[3]));
                     return true;
@@ -264,7 +264,7 @@ public class CommandCountdownCommand extends CommandBase {
                     sendMessage(sender, Messages.SPECIFY_COMMAND);
                     return true;
                 }
-                final Command commandByName = api.getCommandByName(args[2]);
+                final Command commandByName = api.getCommandByName(stripSlash(args[2]));
                 if (commandByName == null) {
                     sendMessage(sender, String.format(Messages.INVALID_COMMAND.toString(), args[2]));
                     return true;
@@ -361,7 +361,7 @@ public class CommandCountdownCommand extends CommandBase {
                 StringUtil.copyPartialMatches(args[3], api.getServerCommandListing(), completions);
             } else if (args[0].equalsIgnoreCase("setdefault")) {
                 if (api.getServerCommandListing().contains(args[2].toLowerCase())) {
-                    final Command commandByName = api.getCommandByName(args[2]);
+                    final Command commandByName = api.getCommandByName(stripSlash(args[2]));
                     if (commandByName != null) {
                         return commandByName.tabComplete(sender, alias, Arrays.copyOfRange(args, 3, args.length));
                     }
@@ -370,7 +370,7 @@ public class CommandCountdownCommand extends CommandBase {
         } else if (length == 5) {
             if (args[0].equalsIgnoreCase("setlimit")) {
                 if (api.getServerCommandListing().contains(args[3].toLowerCase())) {
-                    final Command commandByName = api.getCommandByName(args[3]);
+                    final Command commandByName = api.getCommandByName(stripSlash(args[3]));
                     if (commandByName != null) {
                         return commandByName.tabComplete(sender, alias, Arrays.copyOfRange(args, 4, args.length));
                     }
@@ -384,5 +384,9 @@ public class CommandCountdownCommand extends CommandBase {
     private Optional<Player> optionalOnlinePlayer(String name) {
         final List<Player> players = ImmutableList.copyOf(Bukkit.getOnlinePlayers());
         return CompletableFuture.supplyAsync(() -> players.stream().filter(p -> p.getName().equalsIgnoreCase(name)).findFirst()).join();
+    }
+
+    private String stripSlash(String arg) {
+        return arg.startsWith("/") ? arg.substring(arg.indexOf("/") + 1) : arg;
     }
 }

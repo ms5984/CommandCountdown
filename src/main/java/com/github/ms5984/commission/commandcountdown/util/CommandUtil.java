@@ -57,7 +57,7 @@ public class CommandUtil {
         if (command instanceof NullCommand || command == null) return Optional.empty();
         final String label = command.getLabel();
         final String command_toString = command.toString();
-        return getAPI().getServerCommandListing().stream()
+        return getAPI().getServerCommandListing().parallelStream()
                 .filter(s -> s.endsWith(":" + label))
                 .filter(s -> {
                     final Command commandByName = getAPI().getCommandByName(s);
