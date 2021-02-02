@@ -20,6 +20,7 @@ package com.github.ms5984.commission.commandcountdown.model;
 
 import com.github.ms5984.commission.commandcountdown.CommandCountdown;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
+import com.github.ms5984.commission.commandcountdown.api.PlayerCounter;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
@@ -79,10 +80,10 @@ public class PlayerData {
         player.getPersistentDataContainer().remove(DATA_KEY.get());
     }
 
-    public void storeCommandCounter(CommandCounter commandCounter) {
-        final int hashCode = commandCounter.hashCode(); // incorporates command hash+args
+    public void storePlayerCounter(PlayerCounter playerCounter) {
+        final int hashCode = playerCounter.hashCode(); // incorporates command hash+args
         playerLimits.stream().filter(cc -> cc.hashCode() == hashCode).findAny().ifPresent(playerLimits::remove);
-        playerLimits.add(commandCounter);
+        playerLimits.add(playerCounter);
     }
 
     public Set<CommandCounter> getPlayerLimits() {

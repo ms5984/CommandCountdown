@@ -35,7 +35,7 @@ public final class NullCommand extends Command {
 
     public NullCommand(CommandCounter counter) {
         super(counter.getLabel());
-        this.lastFQN = ((Counter) counter).lastFQN;
+        this.lastFQN = ((AbstractCounter) counter).lastFQN;
     }
 
     /**

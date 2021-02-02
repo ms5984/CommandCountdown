@@ -36,3 +36,5 @@ Messages:
   Limit-Data: '&oYour limit data:'
   Player-No-Limits: '&e%s does not have any limited commands.'
   Player-Limit-Data: "&oLimit data for &e'%s'&r"
+  Default-Limits: '&8Default limits:'
+  Added-Default: "&7Added default %s"

@@ -48,7 +48,9 @@ public enum Messages {
     NO_LIMITS("Messages.No-Limits"),
     LIMIT_DATA("Messages.Limit-Data"),
     PLAYER_NO_LIMITS("Messages.Player-No-Limits"),
-    PLAYER_LIMIT_DATA("Messages.Player-Limit-Data");
+    PLAYER_LIMIT_DATA("Messages.Player-Limit-Data"),
+    DEFAULT_LIMITS("Messages.Default-Limits"),
+    ADDED_DEFAULT("Messages.Added-Default");
 
     private static Configuration configuration;
 

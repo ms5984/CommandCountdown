@@ -39,8 +39,12 @@ match-all-args: true
 default-limits:
   ### Config example!
 #  "auctionhouse:ah":
-#    args: ["sell", "*"]
-#    limit: 5
+#    my-limit:
+#      args: ["sell", "*"]
+#      limit: 5
+#    another-limit:
+#      args: ["buy"]
+#      limit: 1
   ### This is how CommandCountdown stores a default limit entry.
   # Note: you can specify the prefix of a plugin in case multiple define the same alias.
   # This is not required but is available as a convenience.
@@ -48,9 +52,7 @@ default-limits:
 
   ### Simple example
 #  sethome:
-#    args: []
-#    limit: 1
-  ### This would limit players to run /sethome *once*
-  # Things to note:
-  # * Empty args list = only blocking the no-args base command.
-  #   If any arguments are provided the command will not be blocked.
+#    unique-rule-name:
+#      args: []
+#      limit: 1
+  ### This will limit players to run /sethome *once*

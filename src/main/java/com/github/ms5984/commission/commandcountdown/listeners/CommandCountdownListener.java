@@ -21,10 +21,14 @@ package com.github.ms5984.commission.commandcountdown.listeners;
 import com.github.ms5984.commission.commandcountdown.CommandCountdown;
 import com.github.ms5984.commission.commandcountdown.Messages;
 import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
+import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
+import com.github.ms5984.commission.commandcountdown.api.DefaultCounter;
+import com.github.ms5984.commission.commandcountdown.api.PlayerCounter;
+import com.github.ms5984.commission.commandcountdown.commands.CommandBase;
 import com.github.ms5984.commission.commandcountdown.events.AsyncPlayerCommandBlockedEvent;
 import com.github.ms5984.commission.commandcountdown.events.PlayerRunCommandEvent;
 import com.github.ms5984.commission.commandcountdown.events.PlayerRunLimitedCommandEvent;
-import com.github.ms5984.commission.commandcountdown.model.Counter;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,7 +36,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommandCountdownListener implements Listener {
@@ -49,75 +54,93 @@ public class CommandCountdownListener implements Listener {
     public void onPlayerRunCommand(PlayerRunCommandEvent e) {
         final Player player = e.getPlayer();
         final Command command = e.getCommand();
-        if (!api.hasCommandCounter(player, command)) {
+        if (!api.hasCommandCounter(player, command) || player.hasPermission(CommandBase.Permissions.EXEMPT.permission)) {
             return;
         }
         final String[] eventArgs = e.getArgs();
+        final boolean limitsCaseSensitive = api.limitsCaseSensitive();
         // Properly iterate over the new Set form
-        outer : for (Counter counter : api.getCommandCounters(player, command)
-                .parallelStream()
-                .map(cc -> (Counter)cc)
-                .collect(Collectors.toSet())) {
-            final String[] counterArgs = counter.getArgs();
-            if (api.limitsCaseSensitive()) {
-                if (!Arrays.equals(eventArgs, counterArgs)) {
-                    if (counterArgs.length <= eventArgs.length) {
-                        if (counterArgs.length == 0) continue;
-                        for (int i = 0; i < counterArgs.length; ++i) {
-                            if (counterArgs[i].equals("*")) continue;
-                            if (!eventArgs[i].equals(counterArgs[i])) {
-                                continue outer;
+        final List<CommandCounter> counterList = api.getCommandCounters(player, command).parallelStream()
+                .filter(cc -> {
+                    final String[] ccArgs = cc.getArgs();
+                    if (ccArgs.length == 0 && eventArgs.length == 0) return true;
+                    if (eventArgs.length > ccArgs.length && !api.matchAllArgs()) {
+                        return false;
+                    }
+                    int counter = 0;
+                    for (String eArg : eventArgs) {
+                        if (counter >= ccArgs.length) break;
+                        if (!ccArgs[counter].matches("\\*+")) {
+                            if (limitsCaseSensitive) {
+                                if (!eArg.equals(ccArgs[counter])) return false;
+                            } else {
+                                if (!eArg.equalsIgnoreCase(ccArgs[counter])) return false;
                             }
                         }
-                    } else continue;
-                }
-            } else {
-                if (!Arrays.equals(eventArgs, counterArgs)) {
-                    if (counterArgs.length <= eventArgs.length) {
-                        if (counterArgs.length == 0) return;
-                        for (int i = 0; i < counterArgs.length; ++i) {
-                            if (counterArgs[i].equals("*")) continue;
-                            if (!eventArgs[i].equalsIgnoreCase(counterArgs[i])) {
-                                continue outer;
-                            }
-                        }
-                    } else continue;
-                }
-            }
-            if (counter.getLimit() == -1) continue;
-            // We have figured out that this command is in fact limited
-            e.setCancelled(true);
-            plugin.getServer().getPluginManager().callEvent(new PlayerRunLimitedCommandEvent(e, counter));
-            break;
-        }
+                        counter++;
+                    }
+                    return true;
+                }).sorted(Comparator.comparing(cc -> cc instanceof PlayerCounter)).collect(Collectors.toList());
+        if (counterList.isEmpty()) return;
+        if (counterList.parallelStream().noneMatch(cc -> cc.getLimit() != -1)) return;
+        // We have figured out that this command is in fact limited
+        e.setCancelled(true);
+        plugin.getServer().getPluginManager().callEvent(new PlayerRunLimitedCommandEvent(e, counterList.toArray(new CommandCounter[0])));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerRunLimitedCommand(PlayerRunLimitedCommandEvent e) {
-        final Counter counter = (Counter) e.getCommandCounter();
-        if (counter.getLimit() > counter.getCurrentCount()) {
-            // current count is less than limit, event continues uncancelled
-            return;
+        for (CommandCounter commandCounter : e.getCommandCounters()) {
+            if (commandCounter instanceof PlayerCounter) {
+                final PlayerCounter counter = (PlayerCounter) commandCounter;
+                if (counter.getLimit() > counter.getCurrentCount()) {
+                    // current count is less than limit, event continues uncancelled
+                    continue;
+                }
+                e.setCancelled(true);
+            } else if (commandCounter instanceof DefaultCounter) {
+                final DefaultCounter counter = (DefaultCounter) commandCounter;
+                if (counter.getLimit() > counter.getCurrentCount(e.getPlayer())) {
+                    // current count is less than limit, event continues uncancelled
+                    continue;
+                }
+                e.setCancelled(true);
+            }
         }
-        e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerRunCommandMonitor(PlayerRunLimitedCommandEvent e) {
         if (!e.isCancelled()) {
-            if (e.getCommand().execute(e.getPlayer(), e.getOriginalCommandText(), e.getArgs())) {
-                ++((Counter) e.getCommandCounter()).count; // increment count on successful execute
+            final boolean success;
+            if (api.keepCountOnFailure()) {
+                String label = e.getOriginalCommandText();
+                label = label.substring(label.indexOf("/") + 1, label.indexOf(" "));
+                success = e.getCommand().execute(e.getPlayer(), label, e.getArgs());
+            } else {
+                Bukkit.dispatchCommand(e.getPlayer(), e.getOriginalCommandText());
+                success = true;
             }
-            // command failed, do not decrement count
-        } else {
-            final AsyncPlayerCommandBlockedEvent asyncPlayerCommandBlockedEvent = new AsyncPlayerCommandBlockedEvent(e);
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    plugin.getServer().getPluginManager().callEvent(asyncPlayerCommandBlockedEvent);
+            for (CommandCounter commandCounter : e.getCommandCounters()) {
+                if (success) {
+                    if (commandCounter instanceof PlayerCounter) {
+                        final PlayerCounter playerCounter = (PlayerCounter) commandCounter;
+                        playerCounter.increment();
+                    } else if (commandCounter instanceof DefaultCounter) {
+                        final DefaultCounter defaultCounter = (DefaultCounter) commandCounter;
+                        defaultCounter.increment(e.getPlayer());
+                    }
                 }
-            }.runTaskAsynchronously(plugin);
+            }
+            return;
         }
+        final AsyncPlayerCommandBlockedEvent asyncPlayerCommandBlockedEvent = new AsyncPlayerCommandBlockedEvent(e);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                plugin.getServer().getPluginManager().callEvent(asyncPlayerCommandBlockedEvent);
+            }
+        }.runTaskAsynchronously(plugin);
     }
 
     @EventHandler

@@ -33,7 +33,7 @@ import java.util.Objects;
 public abstract class AbstractCounter implements CommandCounter {
 
     private static final long serialVersionUID = -6772027747131626181L;
-    protected static CommandCountdownAPI commandCountdownAPI;
+    private static CommandCountdownAPI commandCountdownAPI;
     protected transient Command command;
     protected final String label;
     protected final List<String> args = new ArrayList<>();
@@ -42,9 +42,6 @@ public abstract class AbstractCounter implements CommandCounter {
     protected int limit;
 
     public AbstractCounter(Command command) {
-        if (commandCountdownAPI == null) {
-            commandCountdownAPI = CommandCountdownAPI.getInstance();
-        }
         this.command = command;
         this.label = command.getLabel();
         if (command instanceof PluginCommand) {
@@ -61,7 +58,7 @@ public abstract class AbstractCounter implements CommandCounter {
     @Override
     public Command getBaseCommand() {
         if (command == null) {
-            command = commandCountdownAPI.getCommandById(command_toString).orElseGet(() -> new NullCommand(this));
+            command = getAPI().getCommandById(command_toString).orElseGet(() -> new NullCommand(this));
         }
         return command;
     }
@@ -78,10 +75,10 @@ public abstract class AbstractCounter implements CommandCounter {
             return providingPlugin.getName() + ":" + label;
         } catch (IllegalArgumentException e) {
             // search the commandMap
-            return commandCountdownAPI.getServerCommandListing().stream()
+            return getAPI().getServerCommandListing().stream()
                     .filter(s -> s.endsWith(":" + label))
                     .filter(s -> {
-                        final Command commandByName = commandCountdownAPI.getCommandByName(s);
+                        final Command commandByName = getAPI().getCommandByName(s);
                         if (commandByName == null) return false;
                         if (commandByName instanceof PluginCommand) {
                             return commandByName.toString()
@@ -124,5 +121,12 @@ public abstract class AbstractCounter implements CommandCounter {
                 String.format("&7Command: '&e%s&7' &8args:&7%s &elimit:[%s] &bcount:[%s]",
                         (command instanceof NullCommand) ? "missing!" + ((NullCommand) command).getLastFQN() : getFQN(),
                         (args.isEmpty()) ? "NONE" : args, limit, "{count}"));
+    }
+
+    protected static CommandCountdownAPI getAPI() {
+        if (commandCountdownAPI == null) {
+            return commandCountdownAPI = CommandCountdownAPI.getInstance();
+        }
+        return commandCountdownAPI;
     }
 }

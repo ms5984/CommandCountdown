@@ -22,6 +22,9 @@ import com.github.ms5984.commission.commandcountdown.CommandCountdown;
 import com.github.ms5984.commission.commandcountdown.Messages;
 import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
+import com.github.ms5984.commission.commandcountdown.api.DefaultCounter;
+import com.github.ms5984.commission.commandcountdown.api.PlayerCounter;
+import com.github.ms5984.commission.commandcountdown.model.ConfigCommandData;
 import com.github.ms5984.commission.commandcountdown.model.PlayerData;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
@@ -62,15 +65,27 @@ public class CommandCountdownCommand extends CommandBase {
                     // We have a player
                     final Player player = (Player) sender;
                     final String[] messages = api.getCountedCommands(player)
-                            .parallelStream().map(Object::toString).toArray(String[]::new);
+                            .parallelStream()
+                            .filter(cc -> cc instanceof PlayerCounter)
+                            .map(Object::toString).toArray(String[]::new);
                     if (messages.length == 0) {
                         // You do not have any limited commands
                         sendMessage(sender, Messages.NO_LIMITS);
-                        return true;
+                    } else {
+                        // Your limited commands are as follows
+                        sendMessage(sender, Messages.LIMIT_DATA);
+                        sender.sendMessage(messages);
                     }
-                    // Your limited commands are as follows
-                    sendMessage(sender, Messages.LIMIT_DATA);
-                    sender.sendMessage(messages);
+                    final List<String> defaults = api.getDefaults().parallelStream()
+                            .map(cc -> {
+                                final int uses = cc.getCurrentCount(player);
+                                return cc.toString().replace("{count}", String.valueOf(uses));
+                            })
+                            .collect(Collectors.toList());
+                    if (!defaults.isEmpty()) {
+                        sendMessage(sender, Messages.DEFAULT_LIMITS);
+                        sender.sendMessage(defaults.toArray(new String[0]));
+                    }
                     return true;
                 } else if (args.length == 2) {
                     final Optional<Player> optionalPlayer = optionalOnlinePlayer(args[1]);
@@ -82,15 +97,27 @@ public class CommandCountdownCommand extends CommandBase {
                     // We have a player
                     final Player target = optionalPlayer.get();
                     final String[] messages = api.getCountedCommands(target)
-                            .parallelStream().map(Object::toString).toArray(String[]::new);
+                            .parallelStream().filter(cc -> cc instanceof PlayerCounter)
+                            .map(Object::toString).toArray(String[]::new);
                     if (messages.length == 0) {
                         // Target does not have any limited commands
                         sendMessage(sender, String.format(Messages.PLAYER_NO_LIMITS.toString(), target.getName()));
                         return true;
+                    } else {
+                        // Target's limited commands
+                        sendMessage(sender, String.format(Messages.PLAYER_LIMIT_DATA.toString(), target.getName()));
+                        sender.sendMessage(messages);
                     }
-                    // Target's limited commands
-                    sendMessage(sender, String.format(Messages.PLAYER_LIMIT_DATA.toString(), target.getName()));
-                    sender.sendMessage(messages);
+                    final List<String> defaults = api.getDefaults().parallelStream()
+                            .map(cc -> {
+                                final int uses = cc.getCurrentCount(target);
+                                return cc.toString().replace("{count}", String.valueOf(uses));
+                            })
+                            .collect(Collectors.toList());
+                    if (!defaults.isEmpty()) {
+                        sendMessage(sender, Messages.DEFAULT_LIMITS);
+                        sender.sendMessage(defaults.toArray(new String[0]));
+                    }
                     return true;
                 }
             } else if ("reload".equalsIgnoreCase(args[0])) {// check permission and run reload
@@ -134,7 +161,7 @@ public class CommandCountdownCommand extends CommandBase {
                 }
                 if (CommandCountdown.getAPI().hasCommandCounter(target, commandByName)) {
                     final PlayerData forPlayer = PlayerData.getForPlayer(target);
-                    final CommandCounter testCounter = api.getNewCommandCounter(commandByName);
+                    final CommandCounter testCounter = api.getNewPlayerCounter(commandByName);
                     if (args.length > 3) {
                         testCounter.setArgs(Arrays.copyOfRange(args, 3, args.length));
                     }
@@ -201,9 +228,9 @@ public class CommandCountdownCommand extends CommandBase {
                     return true;
                 }
                 final Player player = optionalPlayer.get();
-                final CommandCounter commandCounter = api.getNewCommandCounter(commandByName);
+                final PlayerCounter playerCounter = api.getNewPlayerCounter(commandByName);
                 if (args.length > 4) {
-                    commandCounter.setArgs(Arrays.copyOfRange(args, 4, args.length));
+                    playerCounter.setArgs(Arrays.copyOfRange(args, 4, args.length));
                 }
                 commandCounter.setLimit(limit);
                 PlayerData.getForPlayer(player).storeCommandCounter(commandCounter);
