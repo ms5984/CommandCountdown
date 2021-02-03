@@ -76,7 +76,7 @@ public abstract class AbstractCounter implements CommandCounter {
             return providingPlugin.getName() + ":" + label;
         } catch (IllegalArgumentException e) {
             // search the commandMap
-            return CommandUtil.getFallbackPrefixedLabel(command).orElse("?:" + label);
+            return CommandUtil.getFallbackPrefixedLabel(command).stream().findAny().orElse("?:" + label);
         }
     }
 

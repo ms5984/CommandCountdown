@@ -49,10 +49,14 @@ public class ConfigCommandData {
     private final Set<DefaultCounter> counters = new HashSet<>();
 
     private ConfigCommandData(Command command) {
-        final Optional<String> fallbackPrefixedLabel = CommandUtil.getFallbackPrefixedLabel(command);
-        if (!fallbackPrefixedLabel.isPresent()) throw new IllegalArgumentException("Fallback-prefixed command not found!");
-        this.file = new File(COMMAND_FOLDER.get(),
-                fallbackPrefixedLabel.get().replace(":", "-") + ".yml");
+        final Set<String> fallbackPrefixedLabel = CommandUtil.getFallbackPrefixedLabel(command);
+        if (fallbackPrefixedLabel.isEmpty()) throw new IllegalArgumentException("Fallback-prefixed command not found!");
+        final String fallbackName = fallbackPrefixedLabel.stream().findAny().get();
+        this.file = CommandUtil.getLabels(command).parallelStream()
+                .map(s -> s.replace(":", "-") + ".yml")
+                .map(s -> new File(COMMAND_FOLDER.get(), s))
+                .filter(File::exists)
+                .findAny().orElseGet(() -> new File(COMMAND_FOLDER.get(), fallbackName));
         if (file.exists()) {
             configuration = YamlConfiguration.loadConfiguration(file);
         } else {

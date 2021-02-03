@@ -23,7 +23,9 @@ import com.github.ms5984.commission.commandcountdown.model.NullCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 
-import java.util.Optional;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A set of utilities for working with Commands.
@@ -48,13 +50,13 @@ public class CommandUtil {
     }
 
     /**
-     * Get fallback-prefixed command using data directly from
+     * Get ALL labels for a command using data directly from
      * the server commandMap.
      * @param command the command to look for
-     * @return an Optional String
+     * @return a Set of command labels
      */
-    public static Optional<String> getFallbackPrefixedLabel(Command command) {
-        if (command instanceof NullCommand || command == null) return Optional.empty();
+    public static Set<String> getLabels(Command command) {
+        if (command instanceof NullCommand || command == null) return Collections.emptySet();
         final String label = command.getLabel();
         final String command_toString = command.toString();
         return getAPI().getServerCommandListing().parallelStream()
@@ -63,7 +65,20 @@ public class CommandUtil {
                     final Command commandByName = getAPI().getCommandByName(s);
                     if (commandByName == null) return false;
                     return commandByName.toString().equals(command_toString);
-                }).findAny();
+                }).collect(Collectors.toSet());
+    }
+
+    /**
+     * Get all fallback-prefixed labels using data directly from
+     * the server commandMap.
+     * @param command the command to look for
+     * @return an Optional String
+     */
+    public static Set<String> getFallbackPrefixedLabel(Command command) {
+        if (command instanceof NullCommand || command == null) return Collections.emptySet();
+        return getLabels(command).parallelStream()
+                .filter(s -> s.contains(":"))
+                .collect(Collectors.toSet());
     }
 
     private static CommandCountdownAPI getAPI() {
