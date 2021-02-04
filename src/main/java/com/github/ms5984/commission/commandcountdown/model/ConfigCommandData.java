@@ -51,7 +51,9 @@ public class ConfigCommandData {
     private ConfigCommandData(Command command) {
         final Set<String> fallbackPrefixedLabel = CommandUtil.getFallbackPrefixedLabel(command);
         if (fallbackPrefixedLabel.isEmpty()) throw new IllegalArgumentException("Fallback-prefixed command not found!");
-        final String fallbackName = fallbackPrefixedLabel.stream().findAny().get();
+        final String fallbackName = fallbackPrefixedLabel.stream().findAny()
+                .map(s -> s.replace(":", "-") + ".yml")
+                .get();
         this.file = CommandUtil.getLabels(command).parallelStream()
                 .map(s -> s.replace(":", "-") + ".yml")
                 .map(s -> new File(COMMAND_FOLDER.get(), s))

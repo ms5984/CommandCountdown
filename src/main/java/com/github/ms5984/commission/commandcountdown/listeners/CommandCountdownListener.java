@@ -114,8 +114,8 @@ public class CommandCountdownListener implements Listener {
         if (!e.isCancelled()) {
             final boolean success;
             if (api.keepCountOnFailure()) {
-                String label = e.getOriginalCommandText().split(" +")[0];
-                label = label.substring(label.indexOf("/") + 1);
+                String label = e.getOriginalCommandText();
+                label = label.substring(label.indexOf("/") + 1, label.contains(" ") ? label.indexOf(" ") : label.length());
                 success = e.getCommand().execute(e.getPlayer(), label, e.getArgs());
             } else {
                 Bukkit.dispatchCommand(e.getPlayer(), e.getOriginalCommandText());
