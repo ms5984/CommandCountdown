@@ -276,6 +276,27 @@ public class CommandCountdownCommand extends CommandBase {
                 defaultCounter.setLimit(limit);
                 ConfigCommandData.getForCommand(commandByName).storeDefault(defaultCounter);
                 sendMessage(sender, String.format(Messages.ADDED_DEFAULT.toString(), defaultCounter));
+            } else if ("removedefault".equalsIgnoreCase(args[0])) {
+                // "/cc removedefault"
+                if (!sender.hasPermission(Permissions.SET_DEFAULT_LIMIT.permission)) {
+                    sendMessage(sender, getPermissionMessage());
+                    return true;
+                }
+                if (args.length < 2) {
+                    // need to specify a command
+                    sendMessage(sender, Messages.SPECIFY_COMMAND);
+                    return true;
+                }
+                final Command commandByName = api.getCommandByName(stripSlash(args[1]));
+                if (commandByName == null) {
+                    sendMessage(sender, String.format(Messages.INVALID_COMMAND.toString(), args[1]));
+                    return true;
+                }
+                final DefaultCounter defaultCounter = api.getNewDefaultCounter(commandByName);
+                if (args.length > 2) {
+                    defaultCounter.setArgs(Arrays.copyOfRange(args, 2, args.length));
+                }
+                // TODO: remove default and send message
             }
         }
         return false;
@@ -330,6 +351,14 @@ public class CommandCountdownCommand extends CommandBase {
                     return Arrays.asList("1", "2", "3");
                 case "resetdefault":
                     if (sender.hasPermission(Permissions.RESET_DEFAULT_LIMIT.permission)) {
+                        StringUtil.copyPartialMatches(args[1], api.getDefaults()
+                                .parallelStream().map(cc -> {
+                                    final StringBuilder sb = new StringBuilder(cc.getLabel());
+                                    for (String arg : cc.getArgs()) {
+                                        sb.append(" ").append(arg);
+                                    }
+                                    return sb.toString();
+                                }).collect(Collectors.toList()), completions);
                     }
                     break;
             }
@@ -353,7 +382,7 @@ public class CommandCountdownCommand extends CommandBase {
                                 }
                                 return sb.toString();
                             })
-                            .collect(Collectors.toCollection(ArrayList::new)), completions);
+                            .collect(Collectors.toList()), completions);
                 }
             }
         } else if (length == 4) {
