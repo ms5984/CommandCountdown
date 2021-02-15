@@ -19,6 +19,7 @@
 package com.github.ms5984.commission.commandcountdown.commands;
 
 import com.github.ms5984.commission.commandcountdown.Messages;
+import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -28,7 +29,6 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,10 +44,10 @@ public abstract class CommandBase extends Command {
         setAliases(commandData.aliases);
         this.commandData = commandData;
         try {
-            final Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            val commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
             commandMapField.setAccessible(true);
-            final CommandMap commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
-            commandMap.register(getLabel(), providingPlugin.getName(), this);
+            val commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
+            commandMap.register(providingPlugin.getName(), this);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }

@@ -20,7 +20,7 @@ package com.github.ms5984.commission.commandcountdown.listeners;
 
 import com.github.ms5984.commission.commandcountdown.CommandCountdown;
 import com.github.ms5984.commission.commandcountdown.events.PlayerRunCommandEvent;
-import org.bukkit.command.Command;
+import lombok.val;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -39,8 +39,8 @@ public class BukkitEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCommandPreProcessEvent(PlayerCommandPreprocessEvent e) {
-        final String[] split = e.getMessage().split(" +");
-        final Command commandByName = CommandCountdown.getAPI().getCommandByName(split[0].substring(1));
+        val split = e.getMessage().split(" +");
+        val commandByName = CommandCountdown.getAPI().getCommandByName(split[0].substring(1));
         if (commandByName != null) {
             final PlayerRunCommandEvent event;
             if (split.length > 1) {

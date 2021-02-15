@@ -18,6 +18,7 @@
  */
 package com.github.ms5984.commission.commandcountdown;
 
+import lombok.val;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -25,7 +26,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Objects;
 
@@ -67,20 +67,21 @@ public enum Messages {
 
     @Override
     public String toString() {
-        final String get = get();
+        val get = get();
         if (get == null) return "null";
         return ChatColor.translateAlternateColorCodes('&', get);
     }
 
     public static void initialize() {
-        final JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(Messages.class);
-        final File file = new File(providingPlugin.getDataFolder(), "messages.yml");
+        val providingPlugin = JavaPlugin.getProvidingPlugin(Messages.class);
+        val file = new File(providingPlugin.getDataFolder(), "messages.yml");
         if (file.exists()) {
             configuration = YamlConfiguration.loadConfiguration(file);
         } else {
             configuration = new YamlConfiguration();
+            providingPlugin.saveResource("messages.yml", false);
         }
-        final InputStream resource = Objects.requireNonNull(providingPlugin.getResource("messages.yml"));
+        val resource = Objects.requireNonNull(providingPlugin.getResource("messages.yml"));
         configuration.addDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(resource)));
     }
 }

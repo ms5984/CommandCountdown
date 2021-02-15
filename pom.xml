@@ -5,20 +5,43 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.ms5984.commission</groupId>
-    <artifactId>CommandCountdown</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>command-countdown</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>CommandCountdown</name>
     <description>Limit command usages to a specific count. Set global defaults and per-player limits.</description>
-    <url>https://github.com/ms5984</url>
+    <url>https://github.com/ms5984/CommandCountdown</url>
 
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License v3.0 only</name>
+            <url>https://www.gnu.org/licenses/lgpl-3.0-standalone.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>ms5984</id>
+            <name>Matt</name>
+            <url>https://github.com/ms5984</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/ms5984/CommandCountdown.git</connection>
+        <developerConnection>scm:git:ssh://github.com:ms5984/CommandCountdown.git</developerConnection>
+        <url>http://github.com/ms5984/CommandCountdown/tree/master</url>
+    </scm>
+
     <build>
+        <finalName>${project.name}-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -54,6 +77,46 @@
         </resources>
     </build>
 
+    <profiles>
+        <profile>
+            <id>deploy</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+            <build>
+                <finalName>${project.artifactId}-${project.version}</finalName>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>travis-ci</id>
+            <activation>
+                <property>
+                    <name>env.TRAVIS_BUILD_NUMBER</name>
+                </property>
+            </activation>
+            <build>
+                <!--suppress UnresolvedMavenProperty -->
+                <finalName>${project.build.finalName}-${env.TRAVIS_BUILD_NUMBER}</finalName>
+            </build>
+        </profile>
+    </profiles>
+
     <repositories>
         <repository>
             <id>spigotmc-repo</id>
@@ -76,6 +139,12 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>20.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.16</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -21,10 +21,10 @@ package com.github.ms5984.commission.commandcountdown.model;
 import com.github.ms5984.commission.commandcountdown.api.PlayerCounter;
 import org.bukkit.command.Command;
 
-public class PlayerCounterImpl extends AbstractCounter implements PlayerCounter {
+public final class PlayerCounterImpl extends AbstractCounter implements PlayerCounter {
 
     private static final long serialVersionUID = 9016468129961710867L;
-    private int count;
+    protected int count;
 
     public PlayerCounterImpl(Command command) {
         super(command);

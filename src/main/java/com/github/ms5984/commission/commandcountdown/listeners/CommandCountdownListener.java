@@ -28,16 +28,14 @@ import com.github.ms5984.commission.commandcountdown.commands.CommandBase;
 import com.github.ms5984.commission.commandcountdown.events.AsyncPlayerCommandBlockedEvent;
 import com.github.ms5984.commission.commandcountdown.events.PlayerRunCommandEvent;
 import com.github.ms5984.commission.commandcountdown.events.PlayerRunLimitedCommandEvent;
+import lombok.val;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommandCountdownListener implements Listener {
@@ -52,17 +50,17 @@ public class CommandCountdownListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerRunCommand(PlayerRunCommandEvent e) {
-        final Player player = e.getPlayer();
-        final Command command = e.getCommand();
+        val player = e.getPlayer();
+        val command = e.getCommand();
         if (!api.hasCommandCounter(player, command) || player.hasPermission(CommandBase.Permissions.EXEMPT.permission)) {
             return;
         }
-        final String[] eventArgs = e.getArgs();
-        final boolean limitsCaseSensitive = api.limitsCaseSensitive();
+        val eventArgs = e.getArgs();
+        val limitsCaseSensitive = api.limitsCaseSensitive();
         // Properly iterate over the new Set form
-        final List<CommandCounter> counterList = api.getCommandCounters(player, command).parallelStream()
+        val counterList = api.getCommandCounters(player, command).parallelStream()
                 .filter(cc -> {
-                    final String[] ccArgs = cc.getArgs();
+                    val ccArgs = cc.getArgs();
                     if (ccArgs.length == 0 && eventArgs.length == 0) return true;
                     if (eventArgs.length > ccArgs.length && !api.matchAllArgs()) {
                         return false;
@@ -92,14 +90,14 @@ public class CommandCountdownListener implements Listener {
     public void onPlayerRunLimitedCommand(PlayerRunLimitedCommandEvent e) {
         for (CommandCounter commandCounter : e.getCommandCounters()) {
             if (commandCounter instanceof PlayerCounter) {
-                final PlayerCounter counter = (PlayerCounter) commandCounter;
+                val counter = (PlayerCounter) commandCounter;
                 if (counter.getLimit() > counter.getCurrentCount()) {
                     // current count is less than limit, event continues uncancelled
                     continue;
                 }
                 e.setCancelled(true);
             } else if (commandCounter instanceof DefaultCounter) {
-                final DefaultCounter counter = (DefaultCounter) commandCounter;
+                val counter = (DefaultCounter) commandCounter;
                 if (counter.getLimit() > counter.getCurrentCount(e.getPlayer())) {
                     // current count is less than limit, event continues uncancelled
                     continue;
@@ -124,17 +122,15 @@ public class CommandCountdownListener implements Listener {
             for (CommandCounter commandCounter : e.getCommandCounters()) {
                 if (success) {
                     if (commandCounter instanceof PlayerCounter) {
-                        final PlayerCounter playerCounter = (PlayerCounter) commandCounter;
-                        playerCounter.increment();
+                        ((PlayerCounter) commandCounter).increment();
                     } else if (commandCounter instanceof DefaultCounter) {
-                        final DefaultCounter defaultCounter = (DefaultCounter) commandCounter;
-                        defaultCounter.increment(e.getPlayer());
+                        ((DefaultCounter) commandCounter).increment(e.getPlayer());
                     }
                 }
             }
             return;
         }
-        final AsyncPlayerCommandBlockedEvent asyncPlayerCommandBlockedEvent = new AsyncPlayerCommandBlockedEvent(e);
+        val asyncPlayerCommandBlockedEvent = new AsyncPlayerCommandBlockedEvent(e);
         new BukkitRunnable() {
             @Override
             public void run() {

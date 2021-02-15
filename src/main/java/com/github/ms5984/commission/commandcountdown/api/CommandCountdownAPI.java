@@ -60,7 +60,6 @@ public interface CommandCountdownAPI {
 
     /**
      * Obtain all command counters for a given player.
-     * <p>May contain both PlayerCounters and DefaultCounters.</p>
      * @param player the player
      * @return list of all CommandCounters for the player
      */

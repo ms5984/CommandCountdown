@@ -21,6 +21,7 @@ package com.github.ms5984.commission.commandcountdown.model;
 import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
 import com.github.ms5984.commission.commandcountdown.util.CommandUtil;
+import lombok.val;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
@@ -30,28 +31,33 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public abstract class AbstractCounter implements CommandCounter {
 
     private static final long serialVersionUID = -6772027747131626181L;
     private static CommandCountdownAPI commandCountdownAPI;
     protected transient Command command;
+    protected final String counterName;
     protected final String label;
     protected final List<String> args = new ArrayList<>();
     protected String lastFQN;
     public final String command_toString;
     protected int limit;
 
-    public AbstractCounter(Command command) {
+    protected AbstractCounter(String counterName, String label, List<String> args, String lastFQN, String command_toString, int limit) {
+        this.counterName = counterName;
+        this.label = label;
+        this.args.addAll(args);
+        this.lastFQN = lastFQN;
+        this.command_toString = command_toString;
+        this.limit = limit;
+    }
+    protected AbstractCounter(Command command) {
         this.command = command;
+        this.counterName = UUID.randomUUID().toString();
         this.label = command.getLabel();
-        if (command instanceof PluginCommand) {
-            final StringBuilder sb = new StringBuilder(command.toString());
-            sb.delete(sb.lastIndexOf(" v"), sb.indexOf(")")); // Strip out Plugin version
-            this.command_toString = sb.toString();
-        } else {
-            this.command_toString = command.toString();
-        }
+        this.command_toString = command.toString();
         this.limit = -1;
         this.lastFQN = getFQN();
     }
@@ -71,13 +77,12 @@ public abstract class AbstractCounter implements CommandCounter {
 
     @Override
     public String getFQN() {
-        try {
-            final JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(getBaseCommand().getClass());
-            return providingPlugin.getName() + ":" + label;
-        } catch (IllegalArgumentException e) {
-            // search the commandMap
-            return CommandUtil.getFallbackPrefixedLabel(command).stream().findAny().orElse("?:" + label);
+        getBaseCommand();
+        if (command instanceof PluginCommand) {
+            return ((PluginCommand) command).getPlugin().getName() + ":" + label;
         }
+        // search the commandMap
+        return CommandUtil.getFallbackPrefixedLabel(command).stream().findAny().orElse("?:" + label);
     }
 
     @Override

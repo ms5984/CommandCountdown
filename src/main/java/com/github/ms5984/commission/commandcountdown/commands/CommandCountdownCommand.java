@@ -24,7 +24,7 @@ import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
 import com.github.ms5984.commission.commandcountdown.api.CommandCounter;
 import com.github.ms5984.commission.commandcountdown.api.DefaultCounter;
 import com.github.ms5984.commission.commandcountdown.api.PlayerCounter;
-import com.github.ms5984.commission.commandcountdown.model.ConfigCommandData;
+import com.github.ms5984.commission.commandcountdown.model.DefaultData;
 import com.github.ms5984.commission.commandcountdown.model.PlayerData;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
@@ -148,7 +148,7 @@ public class CommandCountdownCommand extends CommandBase {
                 if (args.length == 2) {
                     final PlayerData playerData = PlayerData.getForPlayer(target);
                     playerData.getPlayerLimits().clear();
-                    playerData.clearPdc();
+                    playerData.clear();
                     sendMessage(sender, String.format(Messages.CLEARED_PLAYER.toString(), target.getName()));
                     return true;
                 }
@@ -166,12 +166,12 @@ public class CommandCountdownCommand extends CommandBase {
                         testCounter.setArgs(Arrays.copyOfRange(args, 3, args.length));
                     }
                     final int testHash = testCounter.hashCode();
-                    final Set<CommandCounter> playerLimits = forPlayer.getPlayerLimits();
-                    playerLimits.removeAll(playerLimits.stream().filter(cc -> cc.hashCode() == testHash).collect(Collectors.toSet()));
+                    final Set<PlayerCounter> playerLimits = forPlayer.getPlayerLimits();
+                    playerLimits.removeIf(cc -> cc.hashCode() == testHash);
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            forPlayer.saveToPdc();
+                            forPlayer.saveToFile();
                             sendMessage(sender, String.format(
                                     Messages.REMOVED_COMMAND.toString(),
                                     testCounter.getFQN(),
@@ -274,7 +274,7 @@ public class CommandCountdownCommand extends CommandBase {
                     defaultCounter.setArgs(Arrays.copyOfRange(args, 3, args.length));
                 }
                 defaultCounter.setLimit(limit);
-                ConfigCommandData.getForCommand(commandByName).storeDefault(defaultCounter);
+                DefaultData.get(commandByName).storeCounter(defaultCounter);
                 sendMessage(sender, String.format(Messages.ADDED_DEFAULT.toString(), defaultCounter));
             } else if ("removedefault".equalsIgnoreCase(args[0])) {
                 // "/cc removedefault"

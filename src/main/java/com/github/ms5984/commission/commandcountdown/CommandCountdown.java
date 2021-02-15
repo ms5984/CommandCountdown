@@ -26,10 +26,8 @@ import com.github.ms5984.commission.commandcountdown.commands.CommandBase;
 import com.github.ms5984.commission.commandcountdown.commands.CommandCountdownCommand;
 import com.github.ms5984.commission.commandcountdown.listeners.BukkitEventListener;
 import com.github.ms5984.commission.commandcountdown.listeners.CommandCountdownListener;
-import com.github.ms5984.commission.commandcountdown.model.ConfigCommandData;
-import com.github.ms5984.commission.commandcountdown.model.DefaultCounterImpl;
-import com.github.ms5984.commission.commandcountdown.model.PlayerCounterImpl;
-import com.github.ms5984.commission.commandcountdown.model.PlayerData;
+import com.github.ms5984.commission.commandcountdown.model.*;
+import lombok.val;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -37,9 +35,9 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,16 +45,16 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
 
     private static CommandCountdown instance;
     private Map<String, Command> commandMappings = null;
-    private NamespacedKey dataKey = null;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         instance = this;
         saveDefaultConfig();
+        saveResource("example-rule.yml", false);
         getServer().getServicesManager().register(CommandCountdownAPI.class, this, this, ServicePriority.Normal);
         loadCommandsMap();
-        Messages.initialize();
+        initializeFileAccess();
         CommandBase.Permissions.registerPermissions();
         new BukkitEventListener(this);
         new CommandCountdownListener(this);
@@ -73,10 +71,10 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
 
     private void loadCommandsMap() {
         try {
-            final Field commandMapField = getServer().getClass().getDeclaredField("commandMap");
+            val commandMapField = getServer().getClass().getDeclaredField("commandMap");
             commandMapField.setAccessible(true);
-            final CommandMap commandMap = (CommandMap) commandMapField.get(getServer());
-            final Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            val commandMap = (CommandMap) commandMapField.get(getServer());
+            val knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
             knownCommandsField.setAccessible(true);
             //noinspection unchecked
             commandMappings = ((Map<String, Command>) knownCommandsField.get(commandMap));
@@ -85,10 +83,15 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
         }
     }
 
+    private void initializeFileAccess() {
+        YamlFile.initialize();
+        Messages.initialize();
+    }
+
     @Override
     public boolean hasCommandCounter(Player player, Command command) {
         if (command == null) return false;
-        final int hashCode = command.hashCode();
+        val hashCode = command.hashCode();
         return PlayerData.getForPlayer(player).getPlayerLimits().parallelStream()
                 .map(CommandCounter::getBaseCommand)
                 .map(Object::hashCode)
@@ -108,7 +111,7 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
     @Override
     public Collection<CommandCounter> getCommandCounters(Player player, Command command) {
         if (command == null) return Collections.emptyList();
-        final int hashCode = command.hashCode();
+        val hashCode = command.hashCode();
         return Collections.unmodifiableList(getCountedCommands(player).parallelStream()
                 .filter(cc -> cc.getBaseCommand().hashCode() == hashCode)
                 .collect(Collectors.toList()));
@@ -124,7 +127,7 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
 
     @Override
     public Set<DefaultCounter> getDefaults() {
-        return Collections.unmodifiableSet(ConfigCommandData.getFiles());
+        return Collections.emptySet();
     }
 
     @Override
@@ -139,7 +142,7 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
 
     @Override
     public Optional<Command> getCommandById(String toString) {
-        final String substring = toString.substring(0, toString.indexOf(")"));
+        val substring = toString.substring(0, toString.indexOf(")"));
         return commandMappings.values().parallelStream()
                 .filter(c -> c.toString().startsWith(substring))
                 .findAny();
@@ -162,12 +165,5 @@ public final class CommandCountdown extends JavaPlugin implements CommandCountdo
 
     public static CommandCountdownAPI getAPI() {
         return instance;
-    }
-
-    public static NamespacedKey getDataKey() {
-        if (instance.dataKey == null) {
-            instance.dataKey = new NamespacedKey(instance, "command-data");
-        }
-        return instance.dataKey;
     }
 }

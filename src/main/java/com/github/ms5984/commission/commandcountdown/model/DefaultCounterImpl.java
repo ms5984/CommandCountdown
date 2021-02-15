@@ -21,28 +21,29 @@ package com.github.ms5984.commission.commandcountdown.model;
 import com.github.ms5984.commission.commandcountdown.api.DefaultCounter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
-import org.bukkit.configuration.ConfigurationSection;
 
-public class DefaultCounterImpl extends AbstractCounter implements DefaultCounter {
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+public final class DefaultCounterImpl extends AbstractCounter implements DefaultCounter {
+
     private static final long serialVersionUID = -5047686256799959507L;
+    private static final Map<OfflinePlayer, UUID> playerUUIDMap = new ConcurrentHashMap<>();
+    protected final Map<UUID, Integer> counts = new ConcurrentHashMap<>();
 
     public DefaultCounterImpl(Command command) {
         super(command);
     }
 
-    private ConfigurationSection getUsesSection() {
-        return ConfigCommandData.getForCommand(command).getUsesSection(this);
-    }
-
     @Override
     public int getCurrentCount(OfflinePlayer player) {
-        return getUsesSection().getInt(player.getUniqueId().toString(), 0);
+        return counts.getOrDefault(playerUUIDMap.computeIfAbsent(player, OfflinePlayer::getUniqueId),0);
     }
 
     @Override
     public void setCurrentCount(OfflinePlayer player, int uses) {
-        getUsesSection().set(player.getUniqueId().toString(), uses);
-        ConfigCommandData.getForCommand(command).save();
+        counts.put(playerUUIDMap.computeIfAbsent(player, OfflinePlayer::getUniqueId), uses);
     }
 
     @Override
@@ -52,6 +53,6 @@ public class DefaultCounterImpl extends AbstractCounter implements DefaultCounte
 
     @Override
     public void resetCurrentCount(OfflinePlayer player) {
-        getUsesSection().set(player.getUniqueId().toString(), null);
+        counts.remove(playerUUIDMap.computeIfAbsent(player, OfflinePlayer::getUniqueId));
     }
 }

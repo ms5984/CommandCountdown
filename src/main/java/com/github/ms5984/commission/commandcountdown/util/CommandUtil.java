@@ -20,6 +20,7 @@ package com.github.ms5984.commission.commandcountdown.util;
 
 import com.github.ms5984.commission.commandcountdown.api.CommandCountdownAPI;
 import com.github.ms5984.commission.commandcountdown.model.NullCommand;
+import lombok.val;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 
@@ -42,7 +43,7 @@ public class CommandUtil {
      */
     public static String getSanitized_toString(Command command) {
         if (command instanceof PluginCommand) {
-            final StringBuilder sb = new StringBuilder(command.toString());
+            val sb = new StringBuilder(command.toString());
             sb.delete(sb.indexOf(" v"), sb.indexOf(")"));
             return sb.toString();
         }
@@ -57,12 +58,12 @@ public class CommandUtil {
      */
     public static Set<String> getLabels(Command command) {
         if (command instanceof NullCommand || command == null) return Collections.emptySet();
-        final String label = command.getLabel();
-        final String command_toString = command.toString();
+        val label = command.getLabel();
+        val command_toString = command.toString();
         return getAPI().getServerCommandListing().parallelStream()
-                .filter(s -> s.endsWith(":" + label))
+                .filter(s -> s.endsWith(label))
                 .filter(s -> {
-                    final Command commandByName = getAPI().getCommandByName(s);
+                    val commandByName = getAPI().getCommandByName(s);
                     if (commandByName == null) return false;
                     return commandByName.toString().equals(command_toString);
                 }).collect(Collectors.toSet());
